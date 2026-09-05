@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Haven</title>
+  <meta name="description" content="Um cantinho calmo — clima, som e a minha cidade, num só lugar." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23222a34'/%3E%3Cpath d='M8 20c3-6 13-6 16 0' stroke='%23eae3d6' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <!-- scene / wallpaper (persistent shell) -->
+  <div class="scene" data-scene>
+    <img class="scene__img is-on" src="assets/scenes/dawn.webp" alt="" data-scene-img="dawn" />
+    <div class="scene__grade" aria-hidden="true"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="stage">
+
+    <!-- ===================== HOME ===================== -->
+    <section class="view is-on" data-view="home">
+      <header class="top">
+        <div class="hello" data-in>
+          <p class="hello__k" data-greet>Boa noite</p>
+          <h1 class="hello__name">Brian</h1>
+          <button class="hello__out" data-signout type="button" hidden>sair</button>
+        </div>
+        <button class="weather glass" data-in aria-label="Clima">
+          <span class="weather__ico" data-wico>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.5 3.5 0 0 1 17 18H7Z"/></svg>
+          </span>
+          <span class="weather__main"><b data-temp>—°</b><small data-cond>carregando…</small></span>
+          <span class="weather__city" data-city>—</span>
+        </button>
+      </header>
+
+      <section class="clock" data-in>
+        <div class="clock__time"><span data-clock>--:--</span></div>
+        <p class="clock__date" data-date>—</p>
+      </section>
+
+      <div class="hi-wrap" data-in>
+        <div class="hi-bar">
+          <button class="hi-edit" data-hi-edit hidden>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 7l4 4"/></svg>
+            <span data-hi-edit-lbl>Editar</span>
+          </button>
+        </div>
+        <div class="hi" data-hi></div>
+        <div class="hi-tray glass" data-hi-tray hidden></div>
+      </div>
+    </section>
+
+    <!-- ===================== MÚSICA ===================== -->
+    <section class="view" data-view="music" hidden>
+      <header class="mtop">
+        <div class="mtop__title">
+          <span class="mtop__eyebrow">Som de hoje</span>
+          <h2>Música</h2>
+        </div>
+        <div class="src glass" role="tablist" aria-label="Fonte de música">
+          <button class="src__b is-on" data-src="spotify" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.75.75 0 0 1-1 .25c-2.8-1.7-6.3-2.1-10.5-1.1a.75.75 0 1 1-.34-1.46c4.6-1.06 8.5-.6 11.6 1.3.36.22.47.7.24 1.06Zm1.2-2.9a.94.94 0 0 1-1.28.3c-3.2-2-8-2.5-11.8-1.36a.94.94 0 1 1-.54-1.8c4.3-1.3 9.6-.73 13.3 1.55.44.27.58.85.31 1.3Zm.1-3c-3.8-2.26-10.2-2.47-13.9-1.36a1.12 1.12 0 1 1-.65-2.15c4.2-1.28 11.3-1.03 15.7 1.57a1.12 1.12 0 1 1-1.15 1.93Z"/></svg>
+            Spotify
+          </button>
+          <button class="src__b" data-src="youtube" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.5 12 5.5 12 5.5s-6 0-7.9.6A3 3 0 0 0 2 8.2 31 31 0 0 0 1.7 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.6 7.9.6 7.9.6s6 0 7.9-.6a3 3 0 0 0 2.1-2.1c.3-1.9.3-3.8.3-3.8s0-1.9-.3-3.8ZM10 15V9l5.2 3L10 15Z"/></svg>
+            YouTube
+          </button>
+        </div>
+      </header>
+
+      <!-- hero player -->
+      <div class="player glass">
+        <iframe data-player title="Player" loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+
+      <!-- recommendations -->
+      <div class="recos">
+        <div class="recos__head">
+          <span class="recos__label">Do meu jeito</span>
+          <span class="recos__hint">toque pra ouvir</span>
+        </div>
+        <div class="recos__row" data-recos></div>
+      </div>
+    </section>
+
+    <!-- ===================== COLEÇÃO (filmes/livros/jogos) ===================== -->
+    <section class="view" data-view="catalog" hidden>
+      <header class="ctop">
+        <div class="ctop__title">
+          <span class="ctop__eyebrow">o que você curte</span>
+          <h2>Coleção</h2>
+        </div>
+        <div class="ctabs glass" role="tablist" aria-label="Tipo">
+          <button class="ctab is-on" data-ctype="movie" role="tab">Filmes</button>
+          <button class="ctab" data-ctype="book" role="tab">Livros</button>
+          <button class="ctab" data-ctype="game" role="tab">Jogos</button>
+        </div>
+      </header>
+
+      <label class="csearch glass">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input data-csearch type="search" placeholder="Buscar filmes…" autocomplete="off" />
+        <button class="csearch__x" data-csearch-clear hidden aria-label="Limpar">✕</button>
+      </label>
+
+      <div class="cbody" data-cbody></div>
+
+      <!-- detail / log sheet -->
+      <aside class="sheet citem glass" data-citem hidden>
+        <div class="sheet__grip" aria-hidden="true"></div>
+        <button class="sheet__close" data-citem-close aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <div class="citem__head">
+          <div class="citem__poster" data-citem-poster></div>
+          <div class="citem__meta">
+            <h3 data-citem-title></h3>
+            <p data-citem-sub></p>
+            <div class="stars" data-citem-stars></div>
+          </div>
+        </div>
+        <div class="citem__status" data-citem-status role="tablist"></div>
+        <textarea class="sheet__note" data-citem-note rows="2" placeholder="uma linha sua sobre isso…"></textarea>
+        <div class="sheet__actions">
+          <button class="btn btn--del" data-citem-del aria-label="Remover" hidden>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+          </button>
+          <button class="btn btn--ghost" data-citem-share hidden>Story</button>
+          <button class="btn btn--go" data-citem-save>Salvar</button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ===================== MINHA CIDADE ===================== -->
+    <section class="view" data-view="map" hidden>
+      <div class="map" data-map>
+        <div class="map__canvas" data-map-canvas></div>
+        <div class="map__tint" aria-hidden="true"></div>
+
+        <header class="map__top">
+          <div class="map__id glass">
+            <span class="map__eyebrow">Minha cidade</span>
+            <b class="map__city" data-map-city>São Paulo</b>
+            <span class="map__count" data-map-count>— memórias</span>
+          </div>
+          <button class="map__add glass" data-map-add>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Novo lugar</span>
+          </button>
+        </header>
+
+        <div class="map__styles glass" data-map-styles>
+          <button data-style="constelacao" class="is-on" type="button">Constelação</button>
+          <button data-style="mapa" type="button">Mapa</button>
+          <button data-style="aquarela" type="button">Aquarela</button>
+        </div>
+
+        <div class="map__hint glass" data-map-hint hidden>
+          <span>Toque no mapa pra soltar o pin</span>
+          <button data-map-cancel>cancelar</button>
+        </div>
+
+        <!-- detail / edit sheet -->
+        <aside class="sheet glass" data-sheet hidden>
+          <div class="sheet__grip" aria-hidden="true"></div>
+          <button class="sheet__close" data-sheet-close aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+
+          <div class="sheet__cats" data-sheet-cats role="tablist" aria-label="Categoria"></div>
+          <input class="sheet__name" data-sheet-name placeholder="Nome do lugar" />
+
+          <div class="sheet__gallery" data-sheet-gallery></div>
+
+          <textarea class="sheet__note" data-sheet-note rows="3" placeholder="O que esse lugar te lembra?"></textarea>
+
+          <div class="sheet__actions">
+            <button class="btn btn--ghost" data-sheet-photo>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-9 8"/></svg>
+              Fotos
+            </button>
+            <input type="file" accept="image/*" multiple hidden data-sheet-file />
+            <button class="btn btn--del" data-sheet-del aria-label="Excluir">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
+            </button>
+            <button class="btn btn--go" data-sheet-save>Salvar memória</button>
+          </div>
+        </aside>
+
+        <!-- lightbox -->
+        <div class="lightbox" data-lightbox hidden>
+          <button class="lightbox__close" data-lightbox-close aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+          <img data-lightbox-img alt="" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== dock (persistent) ===================== -->
+    <nav class="dock glass" data-in aria-label="Apps">
+      <button class="dock__i is-on" data-nav="home" aria-label="Início">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h12v-8.5"/></svg>
+      </button>
+      <button class="dock__i" data-nav="map" aria-label="Minha cidade">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10Z"/><circle cx="12" cy="11" r="2"/></svg>
+      </button>
+      <button class="dock__i" data-nav="music" aria-label="Música">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+      </button>
+      <button class="dock__i" data-nav="catalog" aria-label="Coleção">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-3 8 3-8 3-8-3Z"/><path d="M4 12l8 3 8-3"/><path d="M4 17l8 3 8-3"/></svg>
+      </button>
+      <span class="dock__sep" aria-hidden="true"></span>
+      <button class="dock__i" data-scene-btn aria-label="Trocar cena">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l4-5 4 4 3-4 5 6"/><circle cx="8.5" cy="8" r="1.6"/><rect x="3" y="4" width="18" height="15" rx="3"/></svg>
+      </button>
+      <button class="dock__i dock__share" aria-label="Compartilhar momento">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+      </button>
+    </nav>
+  </main>
+
+  <!-- ===================== COMPARTILHAR MOMENTO (card 9:16) ===================== -->
+  <div class="share" data-share hidden>
+    <div class="share__scrim" data-share-close></div>
+    <div class="share__panel">
+      <button class="share__x" data-share-close aria-label="Fechar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="share__stage">
+        <canvas class="share__canvas" data-share-canvas width="1080" height="1920"></canvas>
+      </div>
+      <div class="share__controls">
+        <div class="share__toggles" data-share-toggles>
+          <button class="tog is-on" data-tog="weather" type="button">Clima</button>
+          <button class="tog is-on" data-tog="music" type="button">Som</button>
+          <button class="tog" data-tog="place" type="button">Lugar</button>
+        </div>
+        <select class="share__place" data-share-place hidden aria-label="Lugar em destaque"></select>
+        <input class="share__caption" data-share-caption maxlength="52" placeholder="uma legenda (opcional)" />
+        <div class="share__actions">
+          <button class="btn btn--ghost" data-share-download type="button">Baixar</button>
+          <button class="btn btn--go" data-share-do type="button">Compartilhar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WALLPAPER ===================== -->
+  <div class="wall" data-wall hidden>
+    <div class="wall__scrim" data-wall-close></div>
+    <div class="wall__panel glass">
+      <div class="sheet__grip" aria-hidden="true"></div>
+      <div class="wall__head">
+        <div><span class="wall__eyebrow">seu ambiente</span><b>Wallpaper</b></div>
+        <button class="sheet__close" data-wall-close aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="wall__grid" data-wall-grid></div>
+      <div class="wall__actions">
+        <button class="btn btn--ghost" data-wall-upload type="button">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></svg>
+          Enviar foto
+        </button>
+        <input type="file" accept="image/*" hidden data-wall-file />
+        <button class="btn btn--ghost" data-wall-link type="button">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>
+          Colar link
+        </button>
+      </div>
+      <p class="wall__hint">Do Pinterest: abra o pin → “copiar endereço da imagem” → Colar link.</p>
+    </div>
+  </div>
+
+  <!-- ===================== VISITANTE (link da bio) ===================== -->
+  <div class="visitcta glass" data-visit-cta hidden>
+    <span>Haven de <b data-visit-name>alguém</b></span>
+    <a class="btn btn--go" href="./">Criar o meu</a>
+  </div>
+
+  <!-- ===================== ENTRAR (gate) ===================== -->
+  <div class="gate" data-gate hidden>
+    <div class="gate__card glass">
+      <div class="gate__mark">Haven</div>
+      <p class="gate__tag">seu cantinho — clima, som, sua cidade e o que você curte, num lugar só.</p>
+      <button class="gate__btn" data-gate-signin type="button">
+        <svg viewBox="0 0 24 24" width="19" height="19"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C17.3 2.9 14.9 1.9 12 1.9 6.8 1.9 2.6 6.1 2.6 12S6.8 22.1 12 22.1c6 0 9.9-4.2 9.9-10.1 0-.7-.1-1.2-.2-1.8H12z"/></svg>
+        Entrar com Google
+      </button>
+      <p class="gate__fine">seu ambiente fica salvo na sua conta.</p>
+      <p class="gate__err" data-gate-err hidden></p>
+    </div>
+  </div>
+
+  <script src="firebase-config.js?v=7"></script>
+  <script src="haven-db.js?v=7"></script>
+  <script src="main.js?v=7"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="map.js?v=7"></script>
+  <script src="catalog.js?v=7"></script>
+  <script src="share.js?v=7"></script>
+  <script src="wallpaper.js?v=7"></script>
+  <script src="home.js?v=7"></script>
+  <script src="auth.js?v=7"></script>
+</body>
+</html>
