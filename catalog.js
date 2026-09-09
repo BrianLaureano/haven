@@ -122,14 +122,31 @@
     const card = document.createElement('button');
     card.className = 'ccard'; card.type = 'button';
     if (color) card.style.setProperty('--cc', color);
-    const badge = saved
-      ? `<span class="ccard__badge">${saved.rating ? '★'.repeat(saved.rating)
-          : (catDef(saved.type)?.status?.find(s => s[0] === saved.status)?.[1] || (saved.link ? '↗' : ''))}</span>`
-      : '';
-    card.innerHTML = `<div class="ccard__art">${posterHTML(it.poster, it.title)}${badge}</div>
+    const r = saved && saved.rating;
+    const stars = r ? `<span class="ccard__stars">${'★'.repeat(r)}<i>${'★'.repeat(5 - r)}</i></span>` : '';
+    const scrim = r ? '<span class="ccard__scrim"></span>' : '';
+    const lbl = (saved && !r) ? (catDef(saved.type)?.status?.find(s => s[0] === saved.status)?.[1] || (saved.link ? '↗' : '')) : '';
+    const tag = lbl ? `<span class="ccard__tag">${esc(lbl)}</span>` : '';
+    card.innerHTML = `<div class="ccard__art">${posterHTML(it.poster, it.title)}${scrim}${stars}${tag}<span class="ccard__go"><b>ver</b></span></div>
       <div class="ccard__t">${esc(it.title)}</div><div class="ccard__s">${esc(it.sub || '')}</div>`;
     card.addEventListener('click', () => openItem(it, saved));
     return card;
+  }
+  // destaque estilo revista (item mais bem avaliado com pôster)
+  function cHero(list, color, kind){
+    const cand = [...list].filter(x => x.poster).sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.addedAt || 0) - (a.addedAt || 0))[0];
+    if (!cand) return null;
+    const el = document.createElement('button'); el.className = 'chero'; el.type = 'button';
+    if (color) el.style.setProperty('--cc', color);
+    const r = cand.rating || 0;
+    const stars = r ? `<span class="chero__stars">${'★'.repeat(r)}<i>${'★'.repeat(5 - r)}</i></span>` : '';
+    el.innerHTML =
+      `<span class="chero__bg" style="background-image:url('${cand.poster}')"></span><span class="chero__scrim"></span>` +
+      `<div class="chero__in"><span class="chero__eyebrow">Em destaque · ${esc(kind)}</span>` +
+      `<div class="chero__t">${esc(cand.title)}</div>` +
+      `<div class="chero__meta">${stars}<span class="chero__go">ver na coleção</span></div></div>`;
+    el.addEventListener('click', () => openItem(cand, cand));
+    return el;
   }
   function addCard(){
     const b = document.createElement('button');
@@ -177,6 +194,7 @@
       bindCatEdit(); return;
     }
     bodyEl.innerHTML = catHeader() || `<div class="crow"><span class="crow__label">Meus ${TYPES[type].label.toLowerCase()}</span><span class="crow__n">${list.length}</span></div>`;
+    if (list.length >= 3){ const hero = cHero(list, color, (TYPES[type]?.label) || catDef(type)?.label || 'Coleção'); if (hero) bodyEl.appendChild(hero); }
     const grid = document.createElement('div'); grid.className = 'cgrid';
     if (isCustom(type) && isOwner()) grid.appendChild(addCard());
     [...list].sort((a, b) => b.addedAt - a.addedAt).forEach(it => grid.appendChild(itemCard(it, it, color)));
