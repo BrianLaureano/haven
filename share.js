@@ -170,8 +170,25 @@
   const LAYOUTS = [
     { key: 'card',    label: 'Cartão' },      // imagem emoldurada + textos abaixo
     { key: 'cheia',   label: 'Tela cheia' },  // imagem 9:16 + textos sobrepostos (herói)
-    { key: 'revista', label: 'Revista' }      // imagem no topo + título grande na borda
+    { key: 'revista', label: 'Revista' },     // imagem no topo + título grande na borda
+    { key: 'polaroid', label: 'Polaroid', only: ['media', 'place'] }  // moldura branca + legenda manuscrita
   ];
+  // fonte manuscrita (Caveat) sob demanda, pro Polaroid
+  let hwReady;
+  function ensureHandwrite(){
+    if (hwReady) return hwReady;
+    hwReady = (async () => {
+      try {
+        if (!document.querySelector('link[data-hw]')){
+          const l = document.createElement('link'); l.rel = 'stylesheet'; l.dataset.hw = '1';
+          l.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap';
+          document.head.appendChild(l);
+        }
+        await Promise.all([document.fonts.load('700 76px Caveat'), document.fonts.load('500 44px Caveat')]);
+      } catch {}
+    })();
+    return hwReady;
+  }
   let layoutKey = (() => { try { return localStorage.getItem('haven.share.layout') || 'card'; } catch { return 'card'; } })();
   const hasLayout = () => mode === 'media' || mode === 'place' || mode === 'city' || mode === 'profile';
   // fileira de miniaturas (usada nos layouts cheia/revista da cidade)
@@ -183,8 +200,11 @@
     });
   }
   function buildLayouts(){
-    if (!layoutsEl || layoutsEl.childElementCount) return;
-    LAYOUTS.forEach(s => {
+    if (!layoutsEl) return;
+    const avail = LAYOUTS.filter(s => !s.only || s.only.includes(mode));
+    if (!avail.some(s => s.key === layoutKey)) layoutKey = 'card';   // layout indisponível neste modo → cai no cartão
+    layoutsEl.innerHTML = '';
+    avail.forEach(s => {
       const b = document.createElement('button');
       b.className = 'share__st' + (s.key === layoutKey ? ' is-on' : ''); b.type = 'button'; b.dataset.lay = s.key;
       b.textContent = s.label;
@@ -226,7 +246,35 @@
   function drawLayout(c){
     if (layoutKey === 'cheia') return layoutFull(c);
     if (layoutKey === 'revista') return layoutMag(c);
+    if (layoutKey === 'polaroid') return layoutPolaroid(c);
     return layoutCard(c);
+  }
+  // POLAROID — moldura branca levemente torta + legenda manuscrita
+  function layoutPolaroid(c){
+    backdrop(c.img || c.scene);
+    finish();
+    const cw = 720, imgS = cw - 80, capH = 250, ch = 40 + imgS + capH;
+    const cx = W / 2, cy = H / 2 - 30;
+    ctx.save();
+    ctx.translate(cx, cy); ctx.rotate(-2.4 * Math.PI / 180); ctx.translate(-cw / 2, -ch / 2);
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 70; ctx.shadowOffsetY = 30; rr(0, 0, cw, ch, 14); ctx.fillStyle = '#f7f4ee'; ctx.fill(); ctx.restore();
+    const ix = 40, iy = 40, iw = imgS, ih = imgS;
+    ctx.save(); rr(ix, iy, iw, ih, 4); ctx.clip();
+    if (c.img) coverG(c.img, ix, iy, iw, ih);
+    else { const grd = ctx.createLinearGradient(ix, iy, ix, iy + ih); grd.addColorStop(0, hexA(c.color, .5)); grd.addColorStop(1, hexA(c.color, .25)); ctx.fillStyle = grd; ctx.fillRect(ix, iy, iw, ih); ctx.font = '200px Outfit'; ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c.emoji || '✨', ix + iw / 2, iy + ih / 2 - 8); ctx.textBaseline = 'alphabetic'; }
+    ctx.restore();
+    const capY = iy + ih + 20;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#2a2622';
+    ctx.font = '700 78px "Caveat", cursive';
+    const t = wrap(c.title, '700 78px "Caveat", cursive', cw - 90, 1)[0] || c.title;
+    ctx.fillText(t, cw / 2, capY + 86);
+    const sub = [];
+    if (c.stars) sub.push('★'.repeat(c.stars));
+    if (c.subtitle) sub.push(c.subtitle);
+    ctx.font = '500 46px "Caveat", cursive'; ctx.fillStyle = '#6a625a';
+    if (sub.length) ctx.fillText(sub.join('   ·   '), cw / 2, capY + 156);
+    ctx.restore();
+    ctx.textAlign = 'center'; ctx.font = '600 26px Outfit'; ctx.fillStyle = SOFT; ls('7px'); ctx.fillText('HAVEN', W / 2, H - 96); ls('0px');
   }
   function layoutCard(c){
     backdrop(c.img || c.scene);
@@ -612,7 +660,7 @@
     ctx.font = '400 24px Outfit'; ctx.fillStyle = DIM; ctx.fillText(dateStr(), W / 2, H - 78);
   }
 
-  async function render(){ await fonts(); if (mode === 'media') await drawMedia(); else if (mode === 'profile') await drawProfile(); else if (mode === 'city') await drawCity(); else if (mode === 'place') await drawPlace(); else await drawMoment(); }
+  async function render(){ await fonts(); if (layoutKey === 'polaroid') await ensureHandwrite(); if (mode === 'media') await drawMedia(); else if (mode === 'profile') await drawProfile(); else if (mode === 'city') await drawCity(); else if (mode === 'place') await drawPlace(); else await drawMoment(); }
 
   /* ---------- open / close ---------- */
   function openModal(){

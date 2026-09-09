@@ -15,7 +15,7 @@
   set('profile', {
     widgets: ['status','destaque','now','favoritos','video','galeria','frase','cidade','filmes','livros','jogos','semana','contador','links','memories','social'],
     accent: '#c9a8f0', font: 'space', theme: '',
-    photo: 'https://i.pravatar.cc/300?img=12',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=320&h=320&fit=crop&crop=faces',
     cover: pic('havencover', 1000, 340),
     bio: 'designer de produto · café de especialidade, cinema e um bom RPG. construindo coisas bonitas em São Paulo ✨',
     instagram: 'brian.haven',
