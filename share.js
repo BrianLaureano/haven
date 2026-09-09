@@ -173,7 +173,15 @@
     { key: 'revista', label: 'Revista' }      // imagem no topo + título grande na borda
   ];
   let layoutKey = (() => { try { return localStorage.getItem('haven.share.layout') || 'card'; } catch { return 'card'; } })();
-  const hasLayout = () => mode === 'media' || mode === 'place';
+  const hasLayout = () => mode === 'media' || mode === 'place' || mode === 'city' || mode === 'profile';
+  // fileira de miniaturas (usada nos layouts cheia/revista da cidade)
+  function thumbStrip(tiles, x, y, size, gap, max){
+    tiles.filter(t => t.img).slice(0, max).forEach((t, i) => {
+      const tx = x + i * (size + gap);
+      ctx.save(); rr(tx, y, size, size, 16); ctx.clip(); coverG(t.img, tx, y, size, size); ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 1.5; rr(tx, y, size, size, 16); ctx.stroke();
+    });
+  }
   function buildLayouts(){
     if (!layoutsEl || layoutsEl.childElementCount) return;
     LAYOUTS.forEach(s => {
@@ -362,6 +370,9 @@
     const posters = [];
     for (const u of (d.posters || []).slice(0, 4)) posters.push(await loadImg(u));
 
+    if (layoutKey === 'cheia') return profileFull(d, accent, scene, photo, posters);
+    if (layoutKey === 'revista') return profileMag(d, accent, scene, photo, posters);
+
     backdrop(scene);
 
     // avatar
@@ -404,6 +415,60 @@
     ctx.fillText('entra pra me conhecer ✨', W / 2, H - 214);
     finish();
     footer();
+  }
+  // avatar circular (helper) em (cx,cy) raio r, com borda no accent
+  function avatarCircle(photo, name, accent, cx, cy, r){
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.closePath();
+    ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; ctx.fillStyle = '#2a323d'; ctx.fill(); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip();
+    if (photo) coverG(photo, cx - r, cy - r, r * 2, r * 2);
+    else { ctx.fillStyle = '#2a323d'; ctx.fillRect(cx - r, cy - r, r * 2, r * 2); ctx.fillStyle = accent; ctx.font = `600 ${r}px Outfit`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((name || '?')[0].toUpperCase(), cx, cy); }
+    ctx.restore();
+    ctx.lineWidth = 4; ctx.strokeStyle = hexA(accent, .9); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+  }
+  // PERFIL — tela cheia (cena herói + avatar + nome/bio sobrepostos embaixo)
+  function profileFull(d, accent, scene, photo, posters){
+    if (scene){ ctx.clearRect(0, 0, W, H); coverG(scene, 0, 0, W, H); } else backdrop(scene);
+    let g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(8,10,14,.4)'); g.addColorStop(.42, 'rgba(8,10,14,.12)'); g.addColorStop(.64, 'rgba(8,10,14,.55)'); g.addColorStop(1, 'rgba(6,8,12,.97)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const rg = ctx.createRadialGradient(W / 2, H * .78, 0, W / 2, H * .78, 700); rg.addColorStop(0, hexA(accent, .16)); rg.addColorStop(1, hexA(accent, 0)); ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+    finish();
+    const bioLines = d.bio ? wrap(d.bio, '400 38px Outfit', W - 200, 3) : [];
+    let bh = 220 + 30 + 84 + (d.insta ? 50 : 0) + (bioLines.length ? 16 + bioLines.length * 52 : 0) + 60;
+    let cy = H - 150 - bh + 110;
+    avatarCircle(photo, d.name, accent, W / 2, cy, 110);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    let y = cy + 110 + 84;
+    ctx.font = '600 74px ' + TF; ctx.fillStyle = INK; ctx.fillText(d.name || 'Você', W / 2, y); y += 8;
+    if (d.insta){ y += 50; ctx.font = '400 38px Outfit'; ctx.fillStyle = accent; ctx.fillText('@' + String(d.insta).replace(/^@/, ''), W / 2, y); }
+    if (bioLines.length){ y += 60; ctx.font = '400 38px Outfit'; ctx.fillStyle = SOFT; bioLines.forEach(l => { ctx.fillText(l, W / 2, y); y += 52; }); y -= 8; }
+    y += 60; ctx.font = '400 32px Outfit'; ctx.fillStyle = DIM;
+    ctx.fillText(`${d.titles || 0} títulos   ·   ${d.places || 0} lugares`, W / 2, y);
+    footer();
+  }
+  // PERFIL — revista (cena no topo + avatar sobre a borda + favoritos na faixa)
+  function profileMag(d, accent, scene, photo, posters){
+    const imgH = Math.round(H * 0.46), pad = 90;
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#0b0e13'; ctx.fillRect(0, 0, W, H);
+    if (scene) coverG(scene, 0, 0, W, imgH); else backdrop(scene);
+    let g = ctx.createLinearGradient(0, imgH - 200, 0, imgH + 20); g.addColorStop(0, 'rgba(11,14,19,0)'); g.addColorStop(1, '#0b0e13');
+    ctx.fillStyle = g; ctx.fillRect(0, imgH - 200, W, 220);
+    finish();
+    avatarCircle(photo, d.name, accent, pad + 96, imgH, 96);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    let y = imgH + 150;
+    ctx.font = '600 74px ' + TF; ctx.fillStyle = INK; ctx.fillText(d.name || 'Você', pad, y); y += 6;
+    if (d.insta){ y += 48; ctx.font = '400 36px Outfit'; ctx.fillStyle = accent; ctx.fillText('@' + String(d.insta).replace(/^@/, ''), pad, y); }
+    if (d.bio){ y += 60; ctx.font = '400 36px Outfit'; ctx.fillStyle = SOFT; wrap(d.bio, '400 36px Outfit', W - pad * 2, 3).forEach(l => { ctx.fillText(l, pad, y); y += 50; }); y -= 6; }
+    y += 54; ctx.font = '400 30px Outfit'; ctx.fillStyle = DIM; ctx.fillText(`${d.titles || 0} títulos   ·   ${d.places || 0} lugares`, pad, y);
+    const shown = posters.filter(Boolean).slice(0, 4);
+    if (shown.length){
+      const pw = 200, ph = 300, gap = 22; let px = pad, pyr = y + 44;
+      ctx.font = '600 24px Outfit'; ctx.fillStyle = accent; ls('5px'); ctx.fillText('FAVORITOS', pad, pyr - 22); ls('0px');
+      shown.forEach(im => { ctx.save(); rr(px, pyr, pw, ph, 16); ctx.clip(); coverG(im, px, pyr, pw, ph); ctx.restore(); ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 1.5; rr(px, pyr, pw, ph, 16); ctx.stroke(); px += pw + gap; });
+    }
+    ctx.textAlign = 'center'; footer();
   }
 
   /* ---------- CITY card (minha cidade + colagem de lugares) ---------- */
@@ -461,6 +526,9 @@
     const scene = await loadImg($('.scene__img.is-on')?.src);
     const bg = tiles.find(t => t.img)?.img || scene;
     const A = accentNow();
+    const n = d.count || tiles.length;
+    if (layoutKey === 'cheia') return cityFull(d, tiles, bg, A, n);
+    if (layoutKey === 'revista') return cityMag(d, tiles, bg, A, n);
     backdrop(bg);
 
     const pad = 108;
@@ -478,7 +546,6 @@
     const nameLines = wrap(d.city || 'Minha cidade', '600 96px ' + TF, W - 220, 2);
     let ty = 466; nameLines.forEach(l => { ctx.fillText(l, W / 2, ty); ty += 104; });
     ctx.font = '400 40px Outfit'; ctx.fillStyle = SOFT;
-    const n = d.count || tiles.length;
     ctx.fillText(`${n} ${n === 1 ? 'lugar' : 'lugares'} que eu amo`, W / 2, ty + 4);
 
     drawCollage(tiles, ty + 74, H - 300);
@@ -487,6 +554,41 @@
     ctx.fillText('vem conhecer meus cantinhos ✨', W / 2, H - 206);
     finish();
     footer();
+  }
+  // CIDADE — tela cheia (uma foto herói + colagem menor sobreposta)
+  function cityFull(d, tiles, bg, A, n){
+    if (bg){ ctx.clearRect(0, 0, W, H); coverG(bg, 0, 0, W, H); } else backdrop(bg);
+    let g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(8,10,14,.35)'); g.addColorStop(.4, 'rgba(8,10,14,.1)'); g.addColorStop(.66, 'rgba(8,10,14,.55)'); g.addColorStop(1, 'rgba(6,8,12,.96)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    finish();
+    const pad = 90;
+    const nameLines = wrap(d.city || 'Minha cidade', '600 96px ' + TF, W - pad * 2, 2);
+    const withThumbs = tiles.filter(t => t.img).length >= 2;
+    let bh = 34 + 24 + nameLines.length * 100 + 52 + (withThumbs ? 24 + 128 : 0);
+    let y = H - 150 - bh;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.font = '600 30px Outfit'; ctx.fillStyle = A; ls('6px'); ctx.fillText('MINHA CIDADE', pad, y + 26); ls('0px'); y += 34 + 24;
+    ctx.font = '600 96px ' + TF; ctx.fillStyle = INK; nameLines.forEach(l => { ctx.fillText(l, pad, y + 80); y += 100; });
+    ctx.font = '400 40px Outfit'; ctx.fillStyle = SOFT; ctx.fillText(`${n} ${n === 1 ? 'lugar' : 'lugares'} que eu amo`, pad, y + 34); y += 52;
+    if (withThumbs){ y += 24; thumbStrip(tiles, pad, y, 128, 16, 5); }
+    ctx.font = '600 24px Outfit'; ctx.fillStyle = SOFT; ls('6px'); ctx.fillText('HAVEN', pad, H - 84); ls('0px');
+  }
+  // CIDADE — revista (foto no topo + faixa com título e miniaturas)
+  function cityMag(d, tiles, bg, A, n){
+    const imgH = Math.round(H * 0.6), pad = 90;
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#0b0e13'; ctx.fillRect(0, 0, W, H);
+    if (bg) coverG(bg, 0, 0, W, imgH);
+    let g = ctx.createLinearGradient(0, imgH - 220, 0, imgH + 40); g.addColorStop(0, 'rgba(11,14,19,0)'); g.addColorStop(1, '#0b0e13');
+    ctx.fillStyle = g; ctx.fillRect(0, imgH - 220, W, 260);
+    finish();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.font = '600 30px Outfit'; ctx.fillStyle = A; ls('5px'); ctx.fillText('MINHA CIDADE', pad, imgH - 96); ls('0px');
+    ctx.font = '600 100px ' + TF; ctx.fillStyle = INK;
+    const nameLines = wrap(d.city || 'Minha cidade', '600 100px ' + TF, W - pad * 2, 2); let y = imgH + 100; nameLines.forEach(l => { ctx.fillText(l, pad, y); y += 106; });
+    ctx.font = '400 40px Outfit'; ctx.fillStyle = SOFT; ctx.fillText(`${n} ${n === 1 ? 'lugar' : 'lugares'} que eu amo`, pad, y); y += 54;
+    if (tiles.filter(t => t.img).length >= 2){ y += 18; thumbStrip(tiles, pad, y, 120, 14, 5); }
+    ctx.textAlign = 'center'; footer();
   }
 
   /* ---------- PLACE card (um lugar: foto + nota + review) ---------- */
