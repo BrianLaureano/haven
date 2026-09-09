@@ -3,7 +3,7 @@
    HTML = network-first (pega updates); estáticos = cache-first
    (assets são versionados com ?v=N, então URL nova = conteúdo novo).
    Só intercepta a MESMA origem — Firebase/TMDB/IGDB/fontes vão direto pra rede. */
-const CACHE = 'haven-shell-v25';
+const CACHE = 'haven-shell-v26';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'assets/icon-192.png', 'assets/scenes/dawn.webp'];
 
 self.addEventListener('install', e => {
@@ -16,6 +16,8 @@ self.addEventListener('activate', e => {
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      .then(cs => cs.forEach(c => c.postMessage('haven-sw-updated')))   // pede reload aos clientes
   );
 });
 
@@ -27,8 +29,10 @@ self.addEventListener('fetch', e => {
 
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
   if (isHTML){
+    // HTML sempre revalida com o servidor (evita o cache HTTP do GitHub Pages servir
+    // index velho → refs de JS/CSS velhas → mistura que quebra o layout).
     e.respondWith(
-      fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
+      fetch(req, { cache: 'no-cache' }).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
         .catch(() => caches.match(req).then(m => m || caches.match('index.html')))
     );
     return;

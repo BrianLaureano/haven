@@ -28,7 +28,7 @@
   <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=46" />
+  <link rel="stylesheet" href="styles.css?v=47" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -466,30 +466,30 @@
     </div>
   </div>
 
-  <script src="firebase-config.js?v=46"></script>
+  <script src="firebase-config.js?v=47"></script>
   <!-- ?mock=1 ou ?demo=1 → amostra de Música (capas reais via iTunes) pro player rico sem backend -->
-  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=46"><\/script>');</script>
+  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=47"><\/script>');</script>
   <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
-  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=46"><\/script>');</script>
-  <script src="spotify.js?v=46"></script>
-  <script src="haven-db.js?v=46"></script>
-  <script src="main.js?v=46"></script>
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=47"><\/script>');</script>
+  <script src="spotify.js?v=47"></script>
+  <script src="haven-db.js?v=47"></script>
+  <script src="main.js?v=47"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=46"></script>
-  <script src="catalog.js?v=46"></script>
-  <script src="share.js?v=46"></script>
-  <script src="wallpaper.js?v=46"></script>
-  <script src="home.js?v=46"></script>
-  <script src="auth.js?v=46"></script>
+  <script src="map.js?v=47"></script>
+  <script src="catalog.js?v=47"></script>
+  <script src="share.js?v=47"></script>
+  <script src="wallpaper.js?v=47"></script>
+  <script src="home.js?v=47"></script>
+  <script src="auth.js?v=47"></script>
   <script>
     if ('serviceWorker' in navigator){
       // se um SW novo assumir o controle (deploy novo), recarrega 1x pra pegar o conjunto
       // consistente de arquivos — evita "mistura" velha+nova que quebra o layout.
       let swReload = false;
       const hadCtrl = !!navigator.serviceWorker.controller;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (swReload || !hadCtrl) return; swReload = true; location.reload();
-      });
+      const doReload = () => { if (swReload || !hadCtrl) return; swReload = true; location.reload(); };
+      navigator.serviceWorker.addEventListener('controllerchange', doReload);
+      navigator.serviceWorker.addEventListener('message', e => { if (e.data === 'haven-sw-updated') doReload(); });
       addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(reg => {
         setInterval(() => reg.update().catch(() => {}), 60000);   // checa update a cada 1min
       }).catch(() => {}));
