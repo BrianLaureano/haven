@@ -1,4 +1,12 @@
 {
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json", "**/.*", "**/node_modules/**",
+      "functions/**", "scripts/**", "_refs/**",
+      "*.rules", "*.rules.json", "README.md"
+    ]
+  },
   "functions": {
     "source": "functions",
     "runtime": "nodejs20"
