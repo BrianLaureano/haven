@@ -1085,6 +1085,8 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 /* ----- categorias personalizadas + itens manuais ----- */
 .ctab{display:inline-flex; align-items:center; gap:6px; white-space:nowrap}
 .ctab__ic{font-size:14px; line-height:1}
+.ctab__ic--svg{display:inline-flex; align-items:center}
+.ctab__ic--svg svg{width:16px; height:16px; display:block}
 .ctab.is-on[style*="--cc"]{background:var(--cc); color:#12161c}
 .ctab--add{color:var(--ink-dim); font-size:18px; font-weight:400; line-height:1; padding:8px 14px}
 .ctab--add:hover{color:var(--ink); background:rgba(255,255,255,.08)}

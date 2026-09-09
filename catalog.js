@@ -10,12 +10,17 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = s => (s || '').replace(/[<>&"]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[m]));
 
+  const SVG = {
+    movie: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 4v16M16 4v16M3 9h5M3 15h5M16 9h5M16 15h5"/></svg>`,
+    book:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.4 7.9 5 4.5 5v13c3.4 0 5.9.4 7.5 1.6 1.6-1.2 4.1-1.6 7.5-1.6V5c-3.4 0-5.9.4-7.5 1.6Z"/><path d="M12 6.6V19"/></svg>`,
+    game:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.5v3M5.5 12h3"/><circle cx="15.5" cy="11" r="1.05"/><circle cx="18" cy="13.5" r="1.05"/><path d="M8.5 7h6a5.5 5.5 0 0 1 5.4 6.5l-.3 1.6A2.6 2.6 0 0 1 14.7 15l-.5-.6a2 2 0 0 0-1.5-.7h-1.4a2 2 0 0 0-1.5.7l-.5.6a2.6 2.6 0 0 1-4.6-.9l-.3-1.6A5.5 5.5 0 0 1 8.5 7Z"/></svg>`
+  };
   const TYPES = {
-    movie: { label: 'Filmes', emoji:'🎬', ph: 'Buscar filmes…', needs: 'tmdb',
+    movie: { label: 'Filmes', emoji:'🎬', icon:SVG.movie, ph: 'Buscar filmes…', needs: 'tmdb',
       status: [['want','Quero ver'],['doing','Vendo'],['done','Visto']] },
-    book:  { label: 'Livros', emoji:'📖', ph: 'Buscar livros…', needs: null,
+    book:  { label: 'Livros', emoji:'📖', icon:SVG.book, ph: 'Buscar livros…', needs: null,
       status: [['want','Quero ler'],['doing','Lendo'],['done','Lido']] },
-    game:  { label: 'Jogos', emoji:'🎮', ph: 'Buscar jogos…', needs: 'rawg',
+    game:  { label: 'Jogos', emoji:'🎮', icon:SVG.game, ph: 'Buscar jogos…', needs: 'rawg',
       status: [['want','Quero jogar'],['doing','Jogando'],['done','Zerado']] }
   };
   // paleta on-brand (fica bonita sobre o vidro escuro do Haven)
@@ -83,18 +88,18 @@
   /* ---------- tabs ---------- */
   function renderTabs(){
     tabsEl.innerHTML = '';
-    const mk = (key, label, emoji, color) => {
+    const mk = (key, label, iconHTML, color) => {
       const b = document.createElement('button');
       b.className = 'ctab' + (key === type ? ' is-on' : ''); b.type = 'button'; b.setAttribute('role','tab');
       b.dataset.ctype = key;
       b.setAttribute('aria-selected', key === type);
       if (color) b.style.setProperty('--cc', color);
-      b.innerHTML = `${emoji ? `<span class="ctab__ic">${emoji}</span>` : ''}${esc(label)}`;
+      b.innerHTML = `${iconHTML || ''}${esc(label)}`;
       b.addEventListener('click', () => setType(key));
       tabsEl.appendChild(b);
     };
-    ['movie','book','game'].forEach(k => mk(k, TYPES[k].label, TYPES[k].emoji, ''));
-    cats.forEach(c => mk(c.key, c.label, c.emoji, c.color));
+    ['movie','book','game'].forEach(k => mk(k, TYPES[k].label, `<span class="ctab__ic ctab__ic--svg">${TYPES[k].icon}</span>`, ''));
+    cats.forEach(c => mk(c.key, c.label, c.emoji ? `<span class="ctab__ic">${c.emoji}</span>` : '', c.color));
     if (isOwner()){
       const add = document.createElement('button');
       add.className = 'ctab ctab--add'; add.type = 'button'; add.title = 'Nova categoria'; add.textContent = '+';
