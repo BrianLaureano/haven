@@ -1,37 +1,46 @@
 /* ============================================================
-   Haven — Coleção (filmes · livros · jogos)
-   Busca em APIs públicas, salva em "meus", loga status/nota/estrelas.
-   Livros: OpenLibrary (sem chave). Filmes: TMDB. Jogos: RAWG.
-   Chaves (grátis) ficam no localStorage; livros funcionam sempre.
+   Haven — Coleção (filmes · livros · jogos + categorias suas)
+   Built-in com busca em API; categorias custom (Academia, Faculdade,
+   Hobbies, Meus cursos…) com itens manuais (imagem, nota, link/CTA).
+   Cada categoria tem uma cor da paleta on-brand. Salva na fachada.
    ============================================================ */
 (() => {
   'use strict';
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = s => (s || '').replace(/[<>&"]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[m]));
 
   const TYPES = {
-    movie: { label: 'Filmes', ph: 'Buscar filmes…', needs: 'tmdb',
+    movie: { label: 'Filmes', emoji:'🎬', ph: 'Buscar filmes…', needs: 'tmdb',
       status: [['want','Quero ver'],['doing','Vendo'],['done','Visto']] },
-    book:  { label: 'Livros', ph: 'Buscar livros…', needs: null,
+    book:  { label: 'Livros', emoji:'📖', ph: 'Buscar livros…', needs: null,
       status: [['want','Quero ler'],['doing','Lendo'],['done','Lido']] },
-    game:  { label: 'Jogos', ph: 'Buscar jogos…', needs: 'rawg',
+    game:  { label: 'Jogos', emoji:'🎮', ph: 'Buscar jogos…', needs: 'rawg',
       status: [['want','Quero jogar'],['doing','Jogando'],['done','Zerado']] }
   };
+  // paleta on-brand (fica bonita sobre o vidro escuro do Haven)
+  const PALETTE = ['#e6a4c4','#8fb8e8','#8fd8b0','#c9a8f0','#f0b48a','#ecd58a','#7fb0a0','#e88a8a'];
 
-  // chaves DA PLATAFORMA (nós fornecemos; o usuário nunca conecta nada).
-  // Hoje embutidas no cliente; migram pro proxy das Cloud Functions no Blaze.
   const PLATFORM = window.HAVEN_KEYS || {};
+  const VISIT = new URLSearchParams(location.search).get('u');
+  const isOwner = () => !VISIT && !!window.HavenDB?.user;
 
   /* ---------- storage ---------- */
-  let col = { movie: [], book: [], game: [] };            // carregado pela fachada no ensure()
-  const saveCol = () => { window.HavenDB?.setDoc('collection', col); };   // RTDB (ou local) via fachada
+  let col = { movie: [], book: [], game: [] };   // itens por chave (built-in + custom)
+  let cats = [];                                  // categorias custom [{key,label,emoji,color}]
+  function persist(){ col.$cats = cats; window.HavenDB?.setDoc('collection', col); window.HavenHome?.reload?.(); }
 
-  /* ---------- sources ---------- */
+  const isCustom = k => !TYPES[k];
+  const catDef = k => TYPES[k] ? { key:k, ...TYPES[k], builtin:true } : (cats.find(c => c.key === k) || null);
+  const catColor = k => { const d = catDef(k); return (d && d.color) || 'var(--accent)'; };
+
+  /* ---------- sources (só built-in tem busca) ---------- */
   async function search(type, q){
     q = q.trim(); if (!q) return [];
     if (type === 'book') return searchBooks(q);
     if (type === 'movie') return searchMovies(q);
-    return searchGames(q);
+    if (type === 'game') return searchGames(q);
+    return [];
   }
   async function searchBooks(q){
     const u = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=24&fields=key,title,author_name,first_publish_year,cover_i`;
@@ -49,64 +58,132 @@
       year: (m.release_date || '').slice(0, 4), poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`
     }));
   }
+  const FN = () => (window.HAVEN_FUNCTIONS || '').replace(/\/+$/, '');
   async function searchGames(q){
-    const u = `https://api.rawg.io/api/games?key=${PLATFORM.rawg}&search=${encodeURIComponent(q)}&page_size=24`;
-    const j = await fetch(u).then(r => r.json());
-    return (j.results || []).filter(g => g.background_image).map(g => ({
-      id: `game:${g.id}`, title: g.name, sub: (g.released || '').slice(0, 4),
-      year: (g.released || '').slice(0, 4), poster: g.background_image
-    }));
+    if (!FN()) return [];
+    const j = await fetch(`${FN()}/igdbGames?q=${encodeURIComponent(q)}`)
+      .then(r => (r.ok ? r.json() : { items: [] })).catch(() => ({ items: [] }));
+    return j.items || [];
   }
 
   /* ---------- els ---------- */
-  const tabsEl = $('.ctabs'), searchEl = $('[data-csearch]'), clearEl = $('[data-csearch-clear]');
+  const tabsEl = $('[data-ctabs]'), csWrap = $('[data-csearch-wrap]');
+  const searchEl = $('[data-csearch]'), clearEl = $('[data-csearch-clear]');
   const bodyEl = $('[data-cbody]');
   const sheet = $('[data-citem]');
-  const elPoster = $('[data-citem-poster]'), elTitle = $('[data-citem-title]'), elSub = $('[data-citem-sub]');
-  const elStars = $('[data-citem-stars]'), elStatus = $('[data-citem-status]'), elNote = $('[data-citem-note]');
+  const elPoster = $('[data-citem-poster]'), elTitle = $('[data-citem-title]'), elTitleIn = $('[data-citem-title-input]');
+  const elSub = $('[data-citem-sub]'), elStars = $('[data-citem-stars]'), elStatus = $('[data-citem-status]'), elNote = $('[data-citem-note]');
+  const elManual = $('[data-citem-manual]'), elImg = $('[data-citem-img]'), elLink = $('[data-citem-link]');
+  const elImgBtn = $('[data-citem-imgfile-btn]'), elImgFile = $('[data-citem-imgfile]');
   const btnDel = $('[data-citem-del]'), btnShare = $('[data-citem-share]'), btnSave = $('[data-citem-save]');
 
-  let type = 'movie', current = null, results = null, started = false;
-  const keyFor = t => TYPES[t].needs ? !!PLATFORM[TYPES[t].needs] : true;
+  let type = 'movie', current = null, results = null, started = false, manualMode = false, pendingPosterId = null;
+  const keyFor = t => isCustom(t) ? true : (t === 'game' ? !!FN() : (TYPES[t].needs ? !!PLATFORM[TYPES[t].needs] : true));
+
+  /* ---------- tabs ---------- */
+  function renderTabs(){
+    tabsEl.innerHTML = '';
+    const mk = (key, label, emoji, color) => {
+      const b = document.createElement('button');
+      b.className = 'ctab' + (key === type ? ' is-on' : ''); b.type = 'button'; b.setAttribute('role','tab');
+      b.dataset.ctype = key;
+      b.setAttribute('aria-selected', key === type);
+      if (color) b.style.setProperty('--cc', color);
+      b.innerHTML = `${emoji ? `<span class="ctab__ic">${emoji}</span>` : ''}${esc(label)}`;
+      b.addEventListener('click', () => setType(key));
+      tabsEl.appendChild(b);
+    };
+    ['movie','book','game'].forEach(k => mk(k, TYPES[k].label, TYPES[k].emoji, ''));
+    cats.forEach(c => mk(c.key, c.label, c.emoji, c.color));
+    if (isOwner()){
+      const add = document.createElement('button');
+      add.className = 'ctab ctab--add'; add.type = 'button'; add.title = 'Nova categoria'; add.textContent = '+';
+      add.addEventListener('click', () => openCatMaker());
+      tabsEl.appendChild(add);
+    }
+  }
+  function setType(key){
+    if (key === type) return;
+    type = key;
+    renderTabs();
+    csWrap.hidden = isCustom(type);
+    searchEl.value = ''; clearEl.hidden = true;
+    if (!isCustom(type)) searchEl.placeholder = TYPES[type].ph;
+    renderCollection();
+  }
 
   /* ---------- rendering ---------- */
   function posterHTML(url, title){
     return url
       ? `<img loading="lazy" alt="" src="${url}" onerror="this.style.opacity=0" />`
-      : `<span class="poster__ph">${(title || '?')[0]}</span>`;
+      : `<span class="poster__ph">${esc((title || '?')[0])}</span>`;
   }
-  function itemCard(it, saved){
+  function itemCard(it, saved, color){
     const card = document.createElement('button');
     card.className = 'ccard'; card.type = 'button';
+    if (color) card.style.setProperty('--cc', color);
     const badge = saved
-      ? `<span class="ccard__badge">${saved.rating ? '★'.repeat(saved.rating) : (TYPES[type].status.find(s => s[0] === saved.status)?.[1] || '')}</span>`
+      ? `<span class="ccard__badge">${saved.rating ? '★'.repeat(saved.rating)
+          : (catDef(saved.type)?.status?.find(s => s[0] === saved.status)?.[1] || (saved.link ? '↗' : ''))}</span>`
       : '';
     card.innerHTML = `<div class="ccard__art">${posterHTML(it.poster, it.title)}${badge}</div>
-      <div class="ccard__t">${it.title}</div><div class="ccard__s">${it.sub || ''}</div>`;
+      <div class="ccard__t">${esc(it.title)}</div><div class="ccard__s">${esc(it.sub || '')}</div>`;
     card.addEventListener('click', () => openItem(it, saved));
     return card;
   }
+  function addCard(){
+    const b = document.createElement('button');
+    b.className = 'ccard ccard--add'; b.type = 'button';
+    b.style.setProperty('--cc', catColor(type));
+    b.innerHTML = `<div class="ccard__art"><span class="ccard__plus">+</span></div><div class="ccard__t">adicionar</div>`;
+    b.addEventListener('click', () => openNew(type));
+    return b;
+  }
 
-  // só aparece se a plataforma ainda não tem a chave desse tipo (setup pendente)
   function renderSoon(){
+    const lbl = TYPES[type].label.toLowerCase();
     bodyEl.innerHTML = `<div class="cempty"><b>${TYPES[type].label} chegando</b>
-      <span>Livros já funcionam. Filmes e Jogos entram assim que ligarmos a busca.</span></div>`;
+      <span>Estamos ligando a busca de ${lbl}. Filmes e livros já funcionam.</span></div>`;
+  }
+
+  function catHeader(){
+    const d = catDef(type); if (!d) return '';
+    const n = (col[type] || []).length;
+    const edit = (isCustom(type) && isOwner())
+      ? `<button class="crow__edit" data-cat-edit type="button" title="Editar categoria">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18 10l-4-4L4 16v4Z"/><path d="M13 7l4 4"/></svg></button>` : '';
+    const cover = (isCustom(type) && d.cover) ? `<div class="ccover" style="background-image:url('${esc(d.cover)}')"><span class="ccover__em">${esc(d.emoji||'')}</span></div>` : '';
+    return cover + `<div class="crow" style="--cc:${catColor(type)}">
+      <span class="crow__label"><span class="crow__dot"></span>${esc(n ? d.label : 'Meus ' + d.label.toLowerCase())}</span>
+      <span class="crow__n">${n || ''}</span>${edit}</div>`;
   }
 
   function renderCollection(){
     results = null;
-    if (!keyFor(type)) return renderSoon();
+    if (!isCustom(type) && !keyFor(type)) return renderSoon();
     const list = col[type] || [];
+    const color = catColor(type);
     if (!list.length){
-      bodyEl.innerHTML = `<div class="cempty"><b>Seus ${TYPES[type].label.toLowerCase()} aparecem aqui</b>
-        <span>Busque acima e salve o que você curte.</span></div>`;
-      return;
+      if (isCustom(type)){
+        bodyEl.innerHTML = catHeader();
+        const grid = document.createElement('div'); grid.className = 'cgrid';
+        if (isOwner()) grid.appendChild(addCard());
+        else bodyEl.insertAdjacentHTML('beforeend', `<div class="cempty"><b>nada aqui ainda</b></div>`);
+        bodyEl.appendChild(grid);
+      } else {
+        bodyEl.innerHTML = `<div class="cempty"><b>Seus ${TYPES[type].label.toLowerCase()} aparecem aqui</b>
+          <span>Busque acima e salve o que você curte.</span></div>`;
+      }
+      bindCatEdit(); return;
     }
-    bodyEl.innerHTML = `<div class="crow"><span class="crow__label">Meus ${TYPES[type].label.toLowerCase()}</span><span class="crow__n">${list.length}</span></div>`;
+    bodyEl.innerHTML = catHeader() || `<div class="crow"><span class="crow__label">Meus ${TYPES[type].label.toLowerCase()}</span><span class="crow__n">${list.length}</span></div>`;
     const grid = document.createElement('div'); grid.className = 'cgrid';
-    [...list].sort((a, b) => b.addedAt - a.addedAt).forEach(it => grid.appendChild(itemCard(it, it)));
+    if (isCustom(type) && isOwner()) grid.appendChild(addCard());
+    [...list].sort((a, b) => b.addedAt - a.addedAt).forEach(it => grid.appendChild(itemCard(it, it, color)));
     bodyEl.appendChild(grid);
+    bindCatEdit();
   }
+  function bindCatEdit(){ $('[data-cat-edit]', bodyEl)?.addEventListener('click', () => openCatMaker(type)); }
 
   function renderResults(items){
     results = items;
@@ -133,25 +210,49 @@
   searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(runSearch, 350); });
   clearEl.addEventListener('click', () => { searchEl.value = ''; clearEl.hidden = true; renderCollection(); searchEl.focus(); });
 
-  /* ---------- tabs ---------- */
-  $$('.ctab', tabsEl).forEach(b => b.addEventListener('click', () => {
-    if (b.dataset.ctype === type) return;
-    type = b.dataset.ctype;
-    $$('.ctab', tabsEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
-    searchEl.placeholder = TYPES[type].ph;
-    searchEl.value ? runSearch() : renderCollection();
-  }));
-
   /* ---------- item sheet ---------- */
+  function setManual(on){
+    manualMode = on;
+    elManual.hidden = !on; elStatus.hidden = on; elSub.hidden = on;
+    elTitle.hidden = on; elTitleIn.hidden = !on;
+    elPoster.classList.toggle('citem__poster--edit', on);
+  }
+  function openNew(catKey){
+    current = { id: 'custom:' + Date.now() + Math.round(Math.random()*1e4), type: catKey, custom:true,
+      title:'', poster:'', posterId:null, link:'', status:'', rating:0, note:'' };
+    pendingPosterId = null;
+    setManual(true);
+    elTitleIn.value = ''; elImg.value = ''; elLink.value = '';
+    elPoster.innerHTML = posterHTML('', '');
+    elStars.innerHTML = ''; renderStars(); elNote.value = '';
+    btnDel.hidden = true; btnShare.hidden = true; btnSave.textContent = 'Salvar';
+    openSheet();
+  }
   function openItem(it, existing){
-    current = existing ? { ...existing } : { ...it, status: 'want', rating: 0, note: '', type };
-    elPoster.innerHTML = posterHTML(it.poster || existing?.poster, it.title || existing?.title);
-    elTitle.textContent = current.title;
-    elSub.textContent = current.sub || current.year || '';
-    renderStatus(); renderStars();
+    const t = (existing || it).type || type;
+    const custom = isCustom(t);
+    if (custom && !isOwner() && (existing || it).link){ window.open((existing||it).link, '_blank', 'noopener'); return; }
+    current = existing ? { ...existing } : { ...it, status: custom ? '' : 'want', rating: 0, note: '', type: t, custom };
+    pendingPosterId = current.posterId || null;
+    setManual(custom);
+    if (custom){
+      elTitleIn.value = current.title || '';
+      elImg.value = (current.poster && !current.posterId) ? current.poster : '';
+      elLink.value = current.link || '';
+      elPoster.innerHTML = posterHTML(current.poster, current.title);
+    } else {
+      elPoster.innerHTML = posterHTML(it.poster || existing?.poster, it.title || existing?.title);
+      elTitle.textContent = current.title;
+      elSub.textContent = current.sub || current.year || '';
+      renderStatus();
+    }
+    renderStars();
     elNote.value = current.note || '';
     btnDel.hidden = !existing; btnShare.hidden = !existing;
     btnSave.textContent = existing ? 'Atualizar' : 'Salvar';
+    openSheet();
+  }
+  function openSheet(){
     sheet.hidden = false;
     requestAnimationFrame(() => sheet.classList.add('is-on'));
     setTimeout(() => sheet.classList.add('is-on'), 20);
@@ -160,7 +261,7 @@
 
   function renderStatus(){
     elStatus.innerHTML = '';
-    TYPES[current.type].status.forEach(([k, lbl]) => {
+    (catDef(current.type)?.status || []).forEach(([k, lbl]) => {
       const b = document.createElement('button');
       b.className = 'sbtn' + (current.status === k ? ' is-on' : ''); b.type = 'button'; b.textContent = lbl;
       b.addEventListener('click', () => { current.status = k; renderStatus(); });
@@ -178,20 +279,43 @@
     }
   }
 
-  btnSave.addEventListener('click', () => {
+  // imagem manual: URL colada ou upload
+  elImg?.addEventListener('input', () => {
+    pendingPosterId = null;
+    elPoster.innerHTML = posterHTML(elImg.value.trim(), elTitleIn.value);
+  });
+  elImgBtn?.addEventListener('click', () => elImgFile.click());
+  elImgFile?.addEventListener('change', async () => {
+    const f = elImgFile.files?.[0]; if (!f) return;
+    try {
+      const id = await window.HavenDB?.putPhoto?.(f);
+      if (id){ pendingPosterId = id; elImg.value = '';
+        const url = await window.HavenDB?.photoURL?.(id);
+        elPoster.innerHTML = posterHTML(url, elTitleIn.value); }
+    } catch { window.HavenFlash?.(elImgBtn); }
+    elImgFile.value = '';
+  });
+
+  btnSave.addEventListener('click', async () => {
     current.note = elNote.value.trim();
     current.addedAt = current.addedAt || Date.now();
+    if (manualMode){
+      current.title = (elTitleIn.value || '').trim() || 'Sem título';
+      current.link = (elLink.value || '').trim();
+      if (pendingPosterId){ current.posterId = pendingPosterId; current.poster = await window.HavenDB?.photoURL?.(pendingPosterId) || current.poster; }
+      else { current.poster = (elImg.value || '').trim(); current.posterId = null; }
+    }
     const arr = col[current.type] || (col[current.type] = []);
     const i = arr.findIndex(x => x.id === current.id);
     if (i >= 0) arr[i] = current; else arr.push(current);
-    saveCol(); window.HavenPublish?.(); closeItem();
+    persist(); window.HavenPublish?.(); closeItem();
     if (type === current.type && !searchEl.value) renderCollection();
     else if (results) renderResults(results);
   });
   btnDel.addEventListener('click', () => {
     const arr = col[current.type] || [];
     col[current.type] = arr.filter(x => x.id !== current.id);
-    saveCol(); window.HavenPublish?.(); closeItem();
+    persist(); window.HavenPublish?.(); closeItem();
     if (!searchEl.value) renderCollection(); else if (results) renderResults(results);
   });
   btnShare.addEventListener('click', () => {
@@ -200,19 +324,96 @@
   });
   $('[data-citem-close]').addEventListener('click', closeItem);
 
+  /* ---------- criador/editor de categoria ---------- */
+  let cm = null;
+  function openCatMaker(editKey){
+    const editing = !!editKey && isCustom(editKey);
+    const def = editing ? catDef(editKey) : { label:'', emoji:'⭐', color: PALETTE[0] };
+    let pickColor = def.color || PALETTE[0], pickEmoji = def.emoji || '⭐';
+    let pickCoverId = def.coverId || null, pickCoverUrl = def.cover || '';
+    if (cm) cm.remove();
+    cm = document.createElement('div'); cm.className = 'catmk';
+    cm.innerHTML = `
+      <div class="catmk__panel glass">
+        <div class="catmk__top"><h3>${editing ? 'Editar categoria' : 'Nova categoria'}</h3>
+          <button class="catmk__x" data-x aria-label="Fechar">✕</button></div>
+        <div class="catmk__row">
+          <button class="catmk__emoji" data-emoji type="button" aria-label="Emoji">${esc(pickEmoji)}</button>
+          <input class="catmk__name" data-name placeholder="Nome (ex.: Academia, Faculdade, Meus cursos)" value="${esc(def.label)}" />
+        </div>
+        <span class="catmk__lbl">capa (opcional)</span>
+        <button class="catmk__cover" data-cover type="button">
+          <span class="catmk__coverprev" data-cover-prev${pickCoverUrl?` style="background-image:url('${esc(pickCoverUrl)}')"`:''}></span>
+          <span data-cover-lbl>${pickCoverUrl?'trocar capa':'enviar foto de capa'}</span></button>
+        <input type="file" accept="image/*" hidden data-cover-file />
+        <span class="catmk__lbl">cor da categoria</span>
+        <div class="catmk__colors" data-colors></div>
+        <div class="catmk__actions">
+          ${editing ? '<button class="btn btn--del" data-del>Excluir</button>' : ''}
+          <button class="btn btn--go" data-save>${editing ? 'Salvar' : 'Criar'}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(cm);
+    const coverFile = $('[data-cover-file]', cm), coverPrev = $('[data-cover-prev]', cm), coverLbl = $('[data-cover-lbl]', cm);
+    $('[data-cover]', cm).addEventListener('click', () => coverFile.click());
+    coverFile.addEventListener('change', async () => {
+      const f = coverFile.files?.[0]; if (!f) return;
+      try { const id = await window.HavenDB?.putPhoto?.(f); if (id){ pickCoverId = id; const u = await window.HavenDB?.photoURL?.(id); pickCoverUrl = u || ''; coverPrev.style.backgroundImage = u?`url('${u}')`:''; coverLbl.textContent = 'trocar capa'; } }
+      catch { window.HavenFlash?.($('[data-cover]', cm)); }
+      coverFile.value = '';
+    });
+    $('[data-emoji]', cm).addEventListener('click', () => { window.HavenEmoji?.pick?.(e => { pickEmoji = e; $('[data-emoji]', cm).textContent = e; }); });
+    const colors = $('[data-colors]', cm);
+    PALETTE.forEach(c => {
+      const s = document.createElement('button'); s.type = 'button'; s.className = 'swatch' + (c === pickColor ? ' is-on' : '');
+      s.style.background = c;
+      s.addEventListener('click', () => { pickColor = c; $$('.swatch', colors).forEach(x => x.classList.toggle('is-on', x === s)); });
+      colors.appendChild(s);
+    });
+    requestAnimationFrame(() => cm.classList.add('is-on'));
+    const close = () => { cm.classList.remove('is-on'); setTimeout(() => { cm?.remove(); cm = null; }, 220); };
+    cm.addEventListener('click', e => { if (e.target === cm) close(); });
+    $('[data-x]', cm).addEventListener('click', close);
+    $('[data-save]', cm).addEventListener('click', () => {
+      const label = $('[data-name]', cm).value.trim(); if (!label) return $('[data-name]', cm).focus();
+      const emoji = pickEmoji || '⭐';
+      if (editing){ const d = cats.find(c => c.key === editKey); if (d){ d.label = label; d.emoji = emoji; d.color = pickColor; d.cover = pickCoverUrl; d.coverId = pickCoverId; } }
+      else { const key = 'cat' + Date.now(); cats.push({ key, label, emoji, color: pickColor, cover: pickCoverUrl, coverId: pickCoverId }); type = key; }
+      persist(); window.HavenPublish?.(); renderTabs(); csWrap.hidden = isCustom(type); renderCollection(); close();
+    });
+    $('[data-del]', cm)?.addEventListener('click', () => {
+      if (!confirm(`Excluir a categoria "${def.label}" e seus itens?`)) return;
+      cats = cats.filter(c => c.key !== editKey); delete col[editKey];
+      type = 'movie'; persist(); window.HavenPublish?.(); renderTabs(); csWrap.hidden = false; renderCollection(); close();
+    });
+  }
+
   /* ---------- init ---------- */
+  async function resolvePosters(){
+    for (const c of cats){
+      if (c.coverId){ try { const u = await window.HavenDB?.photoURL?.(c.coverId); if (u) c.cover = u; } catch {} }
+      for (const it of (col[c.key] || [])){
+        if (it.posterId){ try { const u = await window.HavenDB?.photoURL?.(it.posterId); if (u) it.poster = u; } catch {} }
+      }
+    }
+  }
+  async function load(){
+    col = (await window.HavenDB?.getDoc('collection')) || { movie: [], book: [], game: [] };
+    cats = Array.isArray(col.$cats) ? col.$cats : [];
+    await resolvePosters();
+  }
   async function ensure(){
     if (started) return; started = true;
-    searchEl.placeholder = TYPES[type].ph;
     bodyEl.innerHTML = `<div class="cload">carregando…</div>`;
-    try { await window.HavenDB?.ready; col = (await window.HavenDB?.getDoc('collection')) || col; } catch {}
+    try { await window.HavenDB?.ready; await load(); } catch {}
+    renderTabs(); csWrap.hidden = isCustom(type);
+    if (!isCustom(type)) searchEl.placeholder = TYPES[type].ph;
     renderCollection();
-    // recarrega quando o usuário logar/deslogar (troca de ambiente)
     window.HavenDB?.onUser(async () => {
-      try { col = (await window.HavenDB.getDoc('collection')) || { movie: [], book: [], game: [] }; } catch {}
-      if (!searchEl.value) renderCollection();
+      try { await load(); } catch {}
+      renderTabs(); if (!searchEl.value) renderCollection();
     });
   }
   (window.HavenApps = window.HavenApps || {}).catalog = { ensure };
-  window.HavenCollection = { get: () => col };
+  window.HavenCollection = { get: () => col, cats: () => cats, palette: PALETTE };
 })();

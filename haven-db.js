@@ -67,7 +67,14 @@
       async getPublic(uid){ try { return JSON.parse(localStorage.getItem('haven.public.' + (uid || user.uid))); } catch { return null; } },
       async putPhoto(blob){ const id = uid4(); await idb.set(id, blob); const url = URL.createObjectURL(blob); objURLs.set(id, url); return { id, url }; },
       async photoURL(id){ if (objURLs.has(id)) return objURLs.get(id); const b = await idb.get(id); if (!b) return null; const u = URL.createObjectURL(b); objURLs.set(id, u); return u; },
-      async delPhoto(id){ await idb.del(id); const u = objURLs.get(id); if (u){ URL.revokeObjectURL(u); objURLs.delete(id); } }
+      async delPhoto(id){ await idb.del(id); const u = objURLs.get(id); if (u){ URL.revokeObjectURL(u); objURLs.delete(id); } },
+      // ----- nó COMPARTILHADO (público) — ex.: "rôle agora" da cidade -----
+      async listShared(name){ try { return JSON.parse(localStorage.getItem('haven.shared.' + name)) || []; } catch { return []; } },
+      async pushShared(name, obj){ const k = uid4(); const arr = await this.listShared(name); arr.push({ _k: k, ...obj }); try { localStorage.setItem('haven.shared.' + name, JSON.stringify(arr)); } catch {} return k; },
+      async removeShared(name, k){ const arr = (await this.listShared(name)).filter(x => x._k !== k); try { localStorage.setItem('haven.shared.' + name, JSON.stringify(arr)); } catch {} },
+      async updateShared(name, k, patch){ const arr = await this.listShared(name); const i = arr.findIndex(x => x._k === k); if (i < 0) return; const { _k, ...rest } = arr[i]; arr[i] = { _k, ...rest, ...patch }; try { localStorage.setItem('haven.shared.' + name, JSON.stringify(arr)); } catch {} },
+      async putPublicPhoto(blob){ return this.putPhoto(blob); },
+      async publicPhotoURL(id){ return this.photoURL(id); }
     };
   }
 
@@ -128,7 +135,21 @@
         if (String(id).startsWith('loc_')){ if (objURLs.has(id)) return objURLs.get(id); const b = await idb.get(id); if (!b) return null; const u = URL.createObjectURL(b); objURLs.set(id, u); return u; }
         try { return await storage.ref(`users/${need()}/photos/${id}`).getDownloadURL(); } catch { return null; }
       },
-      async delPhoto(id){ if (String(id).startsWith('loc_')){ await idb.del(id); return; } try { await storage.ref(`users/${need()}/photos/${id}`).delete(); } catch {} }
+      async delPhoto(id){ if (String(id).startsWith('loc_')){ await idb.del(id); return; } try { await storage.ref(`users/${need()}/photos/${id}`).delete(); } catch {} },
+      // ----- nó COMPARTILHADO (público) — "rôle agora" da cidade (regras: read público, write logado) -----
+      async listShared(name){ const s = await rtdb.ref('shared/' + name).once('value'); const v = s.val() || {}; return Object.keys(v).map(k => { try { return { _k: k, ...JSON.parse(v[k]) }; } catch { return null; } }).filter(Boolean); },
+      async pushShared(name, obj){ const ref = rtdb.ref('shared/' + name).push(); await ref.set(JSON.stringify(obj)); return ref.key; },
+      async removeShared(name, k){ try { await rtdb.ref('shared/' + name + '/' + k).remove(); } catch {} },
+      async updateShared(name, k, patch){ const ref = rtdb.ref('shared/' + name + '/' + k); const s = await ref.once('value'); let cur = {}; try { cur = JSON.parse(s.val()) || {}; } catch {} await ref.set(JSON.stringify({ ...cur, ...patch })); },
+      // foto pública (leitura por qualquer um) em shared/photos; fallback local se Storage faltar
+      async putPublicPhoto(blob){
+        try { const id = uid4(); const ref = storage.ref('shared/photos/' + id); await ref.put(blob); return { id, url: await ref.getDownloadURL() }; }
+        catch { const id = 'loc_' + uid4(); await idb.set(id, blob); const url = URL.createObjectURL(blob); objURLs.set(id, url); return { id, url }; }
+      },
+      async publicPhotoURL(id){
+        if (String(id).startsWith('loc_')){ if (objURLs.has(id)) return objURLs.get(id); const b = await idb.get(id); if (!b) return null; const u = URL.createObjectURL(b); objURLs.set(id, u); return u; }
+        try { return await storage.ref('shared/photos/' + id).getDownloadURL(); } catch { return null; }
+      }
     };
   }
 
@@ -146,7 +167,13 @@
     getPublic(uid){ return impl.getPublic(uid); },
     putPhoto(b){ return impl.putPhoto(b); },
     photoURL(id){ return impl.photoURL(id); },
-    delPhoto(id){ return impl.delPhoto(id); }
+    delPhoto(id){ return impl.delPhoto(id); },
+    listShared(n){ return impl.listShared(n); },
+    pushShared(n, o){ return impl.pushShared(n, o); },
+    removeShared(n, k){ return impl.removeShared(n, k); },
+    updateShared(n, k, patch){ return impl.updateShared(n, k, patch); },
+    putPublicPhoto(b){ return impl.putPublicPhoto(b); },
+    publicPhotoURL(id){ return impl.publicPhotoURL(id); }
   };
   facade.ready = (async () => {
     if (useFB){

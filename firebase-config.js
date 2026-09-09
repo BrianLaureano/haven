@@ -28,3 +28,15 @@ window.HAVEN_KEYS = {
   tmdb: "e49176f59a36df95d59319117fe9e1d8",
   rawg: ""
 };
+
+/* URL base das Cloud Functions (proxy do Spotify).
+   Deixe vazio → a Música usa o embed do Spotify (funciona sem backend).
+   Depois de `firebase deploy --only functions`, cole aqui a base, ex.:
+   "https://us-central1-haven-9a311.cloudfunctions.net"
+   Aí a Música vira o player custom (capa + faixas + controles). */
+/* Base das Cloud Functions (proxy de Spotify + jogos IGDB).
+   Deixe "" → Música usa embed e Jogos ficam "chegando" (tudo funciona sem backend).
+   Depois de `firebase deploy --only functions`, troque por:
+   "https://us-central1-haven-9a311.cloudfunctions.net"
+   → aí o player custom do Spotify E a busca de jogos (IGDB) acordam de uma vez. */
+window.HAVEN_FUNCTIONS = "";

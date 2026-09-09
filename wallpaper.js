@@ -94,7 +94,7 @@
   function close(){ modal.classList.remove('is-on'); setTimeout(() => { modal.hidden = true; }, 300); }
   document.querySelectorAll('[data-wall-close]').forEach(el => el.addEventListener('click', close));
 
-  window.HavenWallpaper = { open, close };
+  window.HavenWallpaper = { open, close, set(sel){ doc.sel = sel; saveDoc(); apply(sel); } };
   // aplica a escolha salva no boot (e de novo se trocar de usuário)
   (async () => { await loadDoc(); applySaved(); db()?.onUser(async () => { await loadDoc(); applySaved(); }); })();
 })();

@@ -26,4 +26,17 @@ python serve.py 5222
 ## Config
 Preencha `firebase-config.js` com o seu projeto Firebase e as chaves (TMDB/RAWG). No console: ative Google em Authentication, crie o Realtime Database e publique as regras.
 
+### Música (player rico via Cloud Functions)
+Com `window.HAVEN_FUNCTIONS` vazio, a Música usa o embed do Spotify. Ligando o proxy, ela vira o player rico (cover-flow + tocando agora + **sobre o artista** + mais do artista + próxima). Secrets (setar uma vez):
+```bash
+firebase functions:secrets:set SPOTIFY_CLIENT_ID
+firebase functions:secrets:set SPOTIFY_CLIENT_SECRET
+firebase functions:secrets:set LASTFM_API_KEY   # bio do artista — https://www.last.fm/api/account/create
+firebase deploy --only functions
+```
+Depois cole a base das functions em `HAVEN_FUNCTIONS` (ex.: `https://us-central1-<projeto>.cloudfunctions.net`).
+Endpoints: `spotifyPlaylist`, `spotifySearch`, `artistInfo`, `igdbGames`, `havenProfile` (OG por usuário — o link da bio abre com a cara da pessoa; o cliente usa `{FN}/havenProfile?u=<uid>&to=<app-url>` quando o proxy está ligado).
+> Sem `LASTFM_API_KEY` tudo funciona — só a bio fica vazia (gêneros/seguidores/popularidade vêm do Spotify).
+> DEV local sem backend: abra com `?mock=1` (usa `mock-music.js`, gitignored).
+
 > Nota: hoje as chaves de API ficam no cliente (MVP). O próximo passo é movê-las pra Cloud Functions (proxy), pra o usuário nunca ver nenhuma chave.

@@ -5,12 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Haven</title>
   <meta name="description" content="Um cantinho calmo — clima, som e a minha cidade, num só lugar." />
+  <!-- preview ao compartilhar o link (WhatsApp/Insta/etc.) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Haven" />
+  <meta property="og:description" content="Meu cantinho — som, filmes, livros, jogos e a minha cidade. Entra pra me conhecer." />
+  <meta property="og:image" content="assets/scenes/dawn.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Haven" />
+  <meta name="twitter:description" content="Entra pra me conhecer — som, filmes, livros, jogos e a minha cidade." />
+  <meta name="twitter:image" content="assets/scenes/dawn.webp" />
+  <!-- PWA (instalável / adicionar à tela inicial) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#12161c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Haven" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23222a34'/%3E%3Cpath d='M8 20c3-6 13-6 16 0' stroke='%23eae3d6' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=35" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -57,38 +75,108 @@
     </section>
 
     <!-- ===================== MÚSICA ===================== -->
-    <section class="view" data-view="music" hidden>
+    <section class="view mview" data-view="music" hidden>
       <header class="mtop">
         <div class="mtop__title">
           <span class="mtop__eyebrow">Som de hoje</span>
           <h2>Música</h2>
         </div>
-        <div class="src glass" role="tablist" aria-label="Fonte de música">
-          <button class="src__b is-on" data-src="spotify" role="tab" aria-selected="true">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.75.75 0 0 1-1 .25c-2.8-1.7-6.3-2.1-10.5-1.1a.75.75 0 1 1-.34-1.46c4.6-1.06 8.5-.6 11.6 1.3.36.22.47.7.24 1.06Zm1.2-2.9a.94.94 0 0 1-1.28.3c-3.2-2-8-2.5-11.8-1.36a.94.94 0 1 1-.54-1.8c4.3-1.3 9.6-.73 13.3 1.55.44.27.58.85.31 1.3Zm.1-3c-3.8-2.26-10.2-2.47-13.9-1.36a1.12 1.12 0 1 1-.65-2.15c4.2-1.28 11.3-1.03 15.7 1.57a1.12 1.12 0 1 1-1.15 1.93Z"/></svg>
-            Spotify
-          </button>
-          <button class="src__b" data-src="youtube" role="tab" aria-selected="false">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.5 12 5.5 12 5.5s-6 0-7.9.6A3 3 0 0 0 2 8.2 31 31 0 0 0 1.7 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.6 7.9.6 7.9.6s6 0 7.9-.6a3 3 0 0 0 2.1-2.1c.3-1.9.3-3.8.3-3.8s0-1.9-.3-3.8ZM10 15V9l5.2 3L10 15Z"/></svg>
-            YouTube
-          </button>
+        <div class="mtop__right">
+          <div class="src glass" role="tablist" aria-label="Fonte de música">
+            <button class="src__b is-on" data-src="spotify" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.75.75 0 0 1-1 .25c-2.8-1.7-6.3-2.1-10.5-1.1a.75.75 0 1 1-.34-1.46c4.6-1.06 8.5-.6 11.6 1.3.36.22.47.7.24 1.06Zm1.2-2.9a.94.94 0 0 1-1.28.3c-3.2-2-8-2.5-11.8-1.36a.94.94 0 1 1-.54-1.8c4.3-1.3 9.6-.73 13.3 1.55.44.27.58.85.31 1.3Zm.1-3c-3.8-2.26-10.2-2.47-13.9-1.36a1.12 1.12 0 1 1-.65-2.15c4.2-1.28 11.3-1.03 15.7 1.57a1.12 1.12 0 1 1-1.15 1.93Z"/></svg>
+              Spotify
+            </button>
+            <button class="src__b" data-src="youtube" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.5 12 5.5 12 5.5s-6 0-7.9.6A3 3 0 0 0 2 8.2 31 31 0 0 0 1.7 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.6 7.9.6 7.9.6s6 0 7.9-.6a3 3 0 0 0 2.1-2.1c.3-1.9.3-3.8.3-3.8s0-1.9-.3-3.8ZM10 15V9l5.2 3L10 15Z"/></svg>
+              YouTube
+            </button>
+          </div>
+          <button class="mpicks__manage" data-manage type="button" hidden>+ playlists</button>
         </div>
       </header>
 
-      <!-- hero player -->
-      <div class="player glass">
-        <iframe data-player title="Player" loading="lazy"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          allowfullscreen></iframe>
-      </div>
+      <!-- fileira de playlists (escolher) -->
+      <div class="mrail" data-recos aria-label="Playlists"></div>
 
-      <!-- recommendations -->
-      <div class="recos">
-        <div class="recos__head">
-          <span class="recos__label">Do meu jeito</span>
-          <span class="recos__hint">toque pra ouvir</span>
+      <div class="mwrap">
+        <!-- ===== palco: cover-flow + transport ===== -->
+        <div class="mhero" data-hero>
+          <div class="coverflow" data-coverflow aria-label="Faixas"></div>
+
+          <div class="npnow">
+            <div class="npnow__track" data-np-title>—</div>
+            <div class="npnow__artist" data-np-artist></div>
+          </div>
+
+          <div class="transport glass" data-transport>
+            <button class="tp__ico" data-shuffle aria-label="Aleatório" title="Aleatório">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+            </button>
+            <button class="tp__btn" data-prev aria-label="Anterior">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 5v14H5V5h2Zm12 0v14l-11-7 11-7Z"/></svg>
+            </button>
+            <button class="tp__btn tp__btn--play" data-play aria-label="Tocar/pausar">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" data-play-ico><path d="M8 5v14l11-7-11-7Z"/></svg>
+            </button>
+            <button class="tp__btn" data-next aria-label="Próxima">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17 5v14h2V5h-2ZM5 5v14l11-7L5 5Z"/></svg>
+            </button>
+            <div class="tp__seekrow">
+              <span class="tp__time" data-elapsed>0:00</span>
+              <div class="tp__seek" data-seek><div class="tp__seek-fill" data-fill></div></div>
+              <span class="tp__time" data-total>0:00</span>
+            </div>
+            <button class="tp__ico" data-like aria-label="Curtir">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-9.5-9A4.7 4.7 0 0 1 12 6a4.7 4.7 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9Z"/></svg>
+            </button>
+            <a class="tp__open" data-open target="_blank" rel="noopener" aria-label="Ouvir no Spotify">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.75.75 0 0 1-1 .25c-2.8-1.7-6.3-2.1-10.5-1.1a.75.75 0 1 1-.34-1.46c4.6-1.06 8.5-.6 11.6 1.3.36.22.47.7.24 1.06Zm1.2-2.9a.94.94 0 0 1-1.28.3c-3.2-2-8-2.5-11.8-1.36a.94.94 0 1 1-.54-1.8c4.3-1.3 9.6-.73 13.3 1.55.44.27.58.85.31 1.3Zm.1-3c-3.8-2.26-10.2-2.47-13.9-1.36a1.12 1.12 0 1 1-.65-2.15c4.2-1.28 11.3-1.03 15.7 1.57a1.12 1.12 0 1 1-1.15 1.93Z"/></svg>
+            </a>
+          </div>
+
+          <!-- fallback embed (sem proxy/mock) -->
+          <div class="mnow glass" data-now hidden>
+            <iframe data-player title="Player" loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
         </div>
-        <div class="recos__row" data-recos></div>
+
+        <!-- ===== painel lateral: artista + relacionadas + próxima ===== -->
+        <aside class="minfo" data-minfo>
+          <section class="artist glass" data-artist>
+            <div class="artist__hero">
+              <span class="artist__img" data-artist-img></span>
+              <div class="artist__id">
+                <span class="artist__eyebrow">Sobre o artista</span>
+                <h3 class="artist__name" data-artist-name>—</h3>
+                <div class="artist__genres" data-artist-genres></div>
+              </div>
+            </div>
+            <div class="artist__stats">
+              <div class="artist__stat">
+                <b data-artist-followers>—</b><span>seguidores</span>
+              </div>
+              <div class="artist__stat artist__stat--pop">
+                <span>popularidade</span>
+                <div class="artist__bar"><i data-artist-pop></i></div>
+              </div>
+            </div>
+            <p class="artist__bio" data-artist-bio></p>
+            <button class="artist__more" data-artist-more hidden>ler mais</button>
+          </section>
+
+          <section class="mblock" data-morefrom hidden>
+            <div class="mblock__head"><span data-morefrom-label>Mais do artista</span></div>
+            <div class="morefrom" data-morefrom-row></div>
+          </section>
+
+          <section class="mblock" data-upnext hidden>
+            <div class="mblock__head"><span>Próxima a tocar</span></div>
+            <div class="upnext" data-upnext-list></div>
+          </section>
+        </aside>
       </div>
     </section>
 
@@ -99,14 +187,10 @@
           <span class="ctop__eyebrow">o que você curte</span>
           <h2>Coleção</h2>
         </div>
-        <div class="ctabs glass" role="tablist" aria-label="Tipo">
-          <button class="ctab is-on" data-ctype="movie" role="tab">Filmes</button>
-          <button class="ctab" data-ctype="book" role="tab">Livros</button>
-          <button class="ctab" data-ctype="game" role="tab">Jogos</button>
-        </div>
+        <div class="ctabs glass" role="tablist" aria-label="Tipo" data-ctabs></div>
       </header>
 
-      <label class="csearch glass">
+      <label class="csearch glass" data-csearch-wrap>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
         <input data-csearch type="search" placeholder="Buscar filmes…" autocomplete="off" />
         <button class="csearch__x" data-csearch-clear hidden aria-label="Limpar">✕</button>
@@ -124,9 +208,18 @@
           <div class="citem__poster" data-citem-poster></div>
           <div class="citem__meta">
             <h3 data-citem-title></h3>
+            <input class="citem__titlein" data-citem-title-input placeholder="Nome" hidden />
             <p data-citem-sub></p>
             <div class="stars" data-citem-stars></div>
           </div>
+        </div>
+        <div class="citem__manual" data-citem-manual hidden>
+          <div class="citem__imgrow">
+            <input class="citem__in" data-citem-img type="url" placeholder="URL de uma imagem (capa)" />
+            <button class="btn btn--ghost citem__imgbtn" data-citem-imgfile-btn type="button">Enviar foto</button>
+            <input type="file" accept="image/*" hidden data-citem-imgfile />
+          </div>
+          <input class="citem__in" data-citem-link type="url" placeholder="Link (opcional — pro seu conteúdo)" />
         </div>
         <div class="citem__status" data-citem-status role="tablist"></div>
         <textarea class="sheet__note" data-citem-note rows="2" placeholder="uma linha sua sobre isso…"></textarea>
@@ -152,11 +245,22 @@
             <b class="map__city" data-map-city>São Paulo</b>
             <span class="map__count" data-map-count>— memórias</span>
           </div>
-          <button class="map__add glass" data-map-add>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Novo lugar</span>
-          </button>
+          <div class="map__acts">
+            <button class="map__act glass" data-map-share aria-label="Compartilhar cidade no story" title="Compartilhar no story">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m7 8 5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+            </button>
+            <button class="map__add glass" data-map-add>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" data-add-ico><path d="M12 5v14M5 12h14"/></svg>
+              <span data-add-lbl>Novo lugar</span>
+            </button>
+          </div>
         </header>
+
+        <!-- alterna Memórias (autoral) ⇄ Rôle agora (ao vivo) -->
+        <div class="map__mode glass" data-map-mode>
+          <button data-mode="memorias" class="is-on" type="button">Memórias</button>
+          <button data-mode="role" type="button"><span class="live-dot"></span>Rôle agora</button>
+        </div>
 
         <div class="map__styles glass" data-map-styles>
           <button data-style="constelacao" class="is-on" type="button">Constelação</button>
@@ -164,10 +268,21 @@
           <button data-style="aquarela" type="button">Aquarela</button>
         </div>
 
+        <!-- filtro por categoria -->
+        <div class="map__filter" data-map-filter hidden></div>
+
         <div class="map__hint glass" data-map-hint hidden>
-          <span>Toque no mapa pra soltar o pin</span>
-          <button data-map-cancel>cancelar</button>
+          <div class="map__search">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="map__q" data-map-q type="text" placeholder="Buscar lugar ou endereço…" autocomplete="off" spellcheck="false" />
+            <button class="map__hint-x" data-map-cancel aria-label="Cancelar">✕</button>
+          </div>
+          <div class="map__results" data-map-results hidden></div>
+          <span class="map__tip">ou toque no mapa pra soltar o pin</span>
         </div>
+
+        <!-- guia da cidade (fileira de lugares) -->
+        <div class="map__guide" data-map-guide hidden></div>
 
         <!-- detail / edit sheet -->
         <aside class="sheet glass" data-sheet hidden>
@@ -179,9 +294,11 @@
           <div class="sheet__cats" data-sheet-cats role="tablist" aria-label="Categoria"></div>
           <input class="sheet__name" data-sheet-name placeholder="Nome do lugar" />
 
+          <div class="sheet__rate" data-sheet-rate role="radiogroup" aria-label="Sua nota"></div>
+
           <div class="sheet__gallery" data-sheet-gallery></div>
 
-          <textarea class="sheet__note" data-sheet-note rows="3" placeholder="O que esse lugar te lembra?"></textarea>
+          <textarea class="sheet__note" data-sheet-note rows="3" placeholder="Recomenda? o que achou desse lugar?"></textarea>
 
           <div class="sheet__actions">
             <button class="btn btn--ghost" data-sheet-photo>
@@ -189,12 +306,53 @@
               Fotos
             </button>
             <input type="file" accept="image/*" multiple hidden data-sheet-file />
+            <button class="btn btn--ghost" data-sheet-share aria-label="Compartilhar este lugar" title="Compartilhar no story">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m7 8 5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+            </button>
             <button class="btn btn--del" data-sheet-del aria-label="Excluir">
               <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>
             </button>
             <button class="btn btn--go" data-sheet-save>Salvar memória</button>
           </div>
         </aside>
+
+        <!-- postar rôle (ao vivo) -->
+        <aside class="sheet glass role-compose" data-role-compose hidden>
+          <div class="sheet__grip" aria-hidden="true"></div>
+          <button class="sheet__close" data-role-cancel aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+          <b class="role-compose__title"><span class="live-dot"></span> Rôle agora</b>
+          <div class="role-place" data-role-place>—</div>
+          <p class="role-compose__sub role-ok" data-role-where></p>
+          <div class="role-vibes" data-role-vibes role="radiogroup" aria-label="Como está"></div>
+          <button class="role-shot" data-role-pic type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-9 8"/></svg>
+            <span data-role-shot-lbl>foto de agora</span>
+          </button>
+          <input type="file" accept="image/*" capture="environment" hidden data-role-file />
+          <button class="btn btn--go role-compose__go" data-role-publish>Publicar rôle</button>
+          <p class="role-compose__hint">só posta perto do lugar · some sozinho em ~3h</p>
+        </aside>
+
+        <!-- ver um rôle -->
+        <div class="role-view" data-role-view hidden>
+          <button class="lightbox__close" data-role-view-close aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+          <div class="role-view__card">
+            <div class="role-view__img" data-rv-img></div>
+            <div class="role-view__body">
+              <b class="role-view__name" data-rv-name></b>
+              <div class="role-view__meta"><span class="role-view__vibe" data-rv-vibe></span><span data-rv-time></span><span class="role-view__dist" data-rv-dist hidden></span></div>
+              <div class="role-view__foot">
+                <button class="role-view__confirm" data-rv-confirm type="button">👍 tá assim mesmo <b data-rv-confirms></b></button>
+                <button class="role-view__report" data-rv-report type="button">denunciar</button>
+              </div>
+              <span class="role-view__by" data-rv-by></span>
+            </div>
+          </div>
+        </div>
 
         <!-- lightbox -->
         <div class="lightbox" data-lightbox hidden>
@@ -241,6 +399,7 @@
         <canvas class="share__canvas" data-share-canvas width="1080" height="1920"></canvas>
       </div>
       <div class="share__controls">
+        <div class="share__styles" data-share-styles aria-label="Estilo do card"></div>
         <div class="share__toggles" data-share-toggles>
           <button class="tog is-on" data-tog="weather" type="button">Clima</button>
           <button class="tog is-on" data-tog="music" type="button">Som</button>
@@ -285,8 +444,8 @@
 
   <!-- ===================== VISITANTE (link da bio) ===================== -->
   <div class="visitcta glass" data-visit-cta hidden>
-    <span>Haven de <b data-visit-name>alguém</b></span>
-    <a class="btn btn--go" href="./">Criar o meu</a>
+    <span class="visitcta__txt">Haven de <b data-visit-name>alguém</b> · <em>monte o seu</em></span>
+    <a class="btn btn--go" href="./">Criar meu Haven</a>
   </div>
 
   <!-- ===================== ENTRAR (gate) ===================== -->
@@ -303,15 +462,24 @@
     </div>
   </div>
 
-  <script src="firebase-config.js?v=7"></script>
-  <script src="haven-db.js?v=7"></script>
-  <script src="main.js?v=7"></script>
+  <script src="firebase-config.js?v=35"></script>
+  <!-- DEV: ?mock=1 injeta dados de Música sem backend (arquivo gitignored) -->
+  <script>if(new URLSearchParams(location.search).has('mock'))document.write('<script src="mock-music.js?v=35"><\/script>');</script>
+  <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=35"><\/script>');</script>
+  <script src="spotify.js?v=35"></script>
+  <script src="haven-db.js?v=35"></script>
+  <script src="main.js?v=35"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=7"></script>
-  <script src="catalog.js?v=7"></script>
-  <script src="share.js?v=7"></script>
-  <script src="wallpaper.js?v=7"></script>
-  <script src="home.js?v=7"></script>
-  <script src="auth.js?v=7"></script>
+  <script src="map.js?v=35"></script>
+  <script src="catalog.js?v=35"></script>
+  <script src="share.js?v=35"></script>
+  <script src="wallpaper.js?v=35"></script>
+  <script src="home.js?v=35"></script>
+  <script src="auth.js?v=35"></script>
+  <script>
+    if ('serviceWorker' in navigator)
+      addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  </script>
 </body>
 </html>
