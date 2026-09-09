@@ -1202,7 +1202,7 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .sheet__star:active{transform:scale(.9)}
 
 /* filtro por categoria (topo) */
-.map__filter{position:absolute; z-index:3; top:70px; left:14px; right:14px; display:flex; gap:7px;
+.map__filter{position:absolute; z-index:3; top:120px; left:14px; right:14px; display:flex; gap:7px;
   overflow-x:auto; scrollbar-width:none; padding:2px 0; animation:rise .5s var(--ease)}
 .map__filter::-webkit-scrollbar{display:none}
 .map__fchip{flex:none; display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px;
@@ -1228,8 +1228,6 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   font-family:inherit; font-size:12.5px; font-weight:500; color:var(--ink-soft); white-space:nowrap; transition:color .2s, background .2s}
 .map__mode button.is-on{color:#12161c; background:var(--ink); font-weight:650}
 .map.is-placing .map__mode{display:none}
-/* no modo rôle, empurra o filtro pra baixo do toggle */
-.map--role .map__filter{top:116px}
 
 /* pin do rôle: foto + anel da vibe + badge de tempo */
 .pin--role .pin__dot{border-color:#fff; box-shadow:0 6px 16px rgba(0,0,0,.55), 0 0 0 3px color-mix(in srgb, var(--pin) 75%, transparent)}
