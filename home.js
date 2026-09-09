@@ -230,17 +230,20 @@
 
   const plId = raw => { const m = String(raw||'').match(/playlist[/:]([A-Za-z0-9]+)/); return m ? m[1] : (String(raw||'').trim() || ''); };
   const HERO = '';   // feed: sem hero fixo
-  const pcard = i => `<div class="pcard"><span class="pcard__art" style="background-image:url('${i.poster}')">${i.rating?`<b>${'★'.repeat(i.rating)}</b>`:''}</span><em>${esc(i.title)}</em></div>`;
+  // estrelas douradas (cheias + vazias) sobre um scrim — igual à Coleção
+  const pstars = r => r ? `<span class="pcard__scrim"></span><b class="pcard__stars">${'★'.repeat(r)}<i>${'★'.repeat(5-r)}</i></b>` : '';
+  const gstars = r => r ? `<span class="gcard__scrim"></span><em class="gcard__star">${'★'.repeat(r)}<i>${'★'.repeat(5-r)}</i></em>` : '';
+  const pcard = i => `<div class="pcard"><span class="pcard__art" style="background-image:url('${i.poster}')">${pstars(i.rating)}</span><em>${esc(i.title)}</em></div>`;
   // card de item de categoria custom — vira link se tiver CTA (pro visitante clicar)
   const catCard = i => {
-    const art = `<span class="pcard__art"${i.poster?` style="background-image:url('${esc(i.poster)}')"`:''}>${!i.poster?`<b class="pcard__ph">${esc((i.title||'?')[0])}</b>`:''}${i.rating?`<b>${'★'.repeat(i.rating)}</b>`:''}${i.link?'<span class="pcard__go">↗</span>':''}</span><em>${esc(i.title)}</em>`;
+    const art = `<span class="pcard__art"${i.poster?` style="background-image:url('${esc(i.poster)}')"`:''}>${!i.poster?`<b class="pcard__ph">${esc((i.title||'?')[0])}</b>`:''}${pstars(i.rating)}${i.link?'<span class="pcard__go">↗</span>':''}</span><em>${esc(i.title)}</em>`;
     return i.link
       ? `<a class="pcard pcard--link" href="${esc(i.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${art}</a>`
       : `<div class="pcard">${art}</div>`;
   };
   // card de GRADE (variação estilo iPhone) — quadrado, vira link se tiver CTA
   const gcard = i => {
-    const art = `<span class="gcard__art"${i.poster?` style="background-image:url('${esc(i.poster)}')"`:''}>${!i.poster?`<b class="gcard__ph">${esc((i.title||'?')[0])}</b>`:''}${i.rating?`<em class="gcard__star">${'★'.repeat(i.rating)}</em>`:''}${i.link?'<span class="gcard__go">↗</span>':''}</span><em class="gcard__t">${esc(i.title||'')}</em>`;
+    const art = `<span class="gcard__art"${i.poster?` style="background-image:url('${esc(i.poster)}')"`:''}>${!i.poster?`<b class="gcard__ph">${esc((i.title||'?')[0])}</b>`:''}${gstars(i.rating)}${i.link?'<span class="gcard__go">↗</span>':''}</span><em class="gcard__t">${esc(i.title||'')}</em>`;
     return i.link
       ? `<a class="gcard gcard--link" href="${esc(i.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${art}</a>`
       : `<div class="gcard">${art}</div>`;
