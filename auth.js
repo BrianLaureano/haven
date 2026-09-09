@@ -28,7 +28,7 @@
   function friendly(err){
     const c = err?.code || '';
     if (c === 'auth/operation-not-allowed') return 'Ative o login com Google no console (Authentication → Google).';
-    if (c === 'auth/unauthorized-domain') return 'Domínio não autorizado — adicione localhost em Authentication → Settings → Domínios autorizados.';
+    if (c === 'auth/unauthorized-domain') return `Domínio não autorizado — adicione "${location.hostname}" em Authentication → Settings → Domínios autorizados.`;
     if (c === 'auth/popup-closed-by-user') return '';   // usuário fechou; sem alarme
     if (c === 'auth/configuration-not-found') return 'Provedor Google ainda não configurado no console.';
     return (err?.code ? err.code + ' — ' : '') + (err?.message || 'falhou ao entrar');
