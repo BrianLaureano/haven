@@ -254,7 +254,7 @@
     const useRich = () => src === 'spotify' && useApi();
     const audio = new Audio();
     let tracks = [], cards = [], cur = -1, playing = false, plCover = null, shuffled = false;
-    let curArtistId = null;
+    let curArtistId = null, dragX = null, swiped = false;
     const esc = s => (s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
     const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
     const fmtNum = n => {
@@ -321,7 +321,7 @@
         img.onload = () => img.classList.add('is-loaded');
         img.onerror = () => { c.style.background = 'linear-gradient(150deg,#3a4a63,#242a36)'; };
         img.src = t.cover || plCover || '';
-        c.addEventListener('click', () => { if (i === cur) toggle(); else selectTrack(i, true); });
+        c.addEventListener('click', () => { if (swiped){ swiped = false; return; } if (i === cur) toggle(); else selectTrack(i, true); });
         cfEl.appendChild(c); cards.push(c);
       });
       requestAnimationFrame(layoutCF);
@@ -493,6 +493,23 @@
     });
     audio.addEventListener('ended', () => step(1));
     addEventListener('resize', () => { if (!cfEl.hidden) layoutCF(); });
+
+    /* ---- deslizar/arrastar as capas pra trocar a faixa ---- */
+    cfEl.addEventListener('pointerdown', e => { if (!tracks.length) return; dragX = e.clientX; swiped = false; });
+    cfEl.addEventListener('pointermove', e => {
+      if (dragX == null) return;
+      const dx = e.clientX - dragX;
+      if (Math.abs(dx) > 6){ cfEl.style.transition = 'none'; cfEl.style.transform = `translateX(${dx * 0.22}px)`; }
+    });
+    const endDrag = e => {
+      if (dragX == null) return;
+      const dx = (e.clientX ?? dragX) - dragX; dragX = null;
+      cfEl.style.transition = 'transform .28s var(--ease)'; cfEl.style.transform = '';
+      if (Math.abs(dx) > 44){ swiped = true; navigator.vibrate?.(8); selectTrack(cur + (dx < 0 ? 1 : -1), playing); }
+    };
+    cfEl.addEventListener('pointerup', endDrag);
+    cfEl.addEventListener('pointercancel', () => { dragX = null; cfEl.style.transition = 'transform .28s var(--ease)'; cfEl.style.transform = ''; });
+    cfEl.addEventListener('pointerleave', endDrag);
 
     /* ===== gerenciar playlists (dono busca no Spotify e escolhe) ===== */
     const manageBtn = $('[data-manage]');
