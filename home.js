@@ -1263,8 +1263,11 @@
       cats = Array.isArray(snap.cats) ? snap.cats : [];
       col = { ...(snap.col || { movie:[], book:[], game:[] }), ...(snap.catItems || {}) };
       places = snap.places || []; memories = snap.memories || [];
+      const who = (snap.name||'alguém').split(' ')[0];
       const nm = $('.hello__name'); if (nm) nm.textContent = (snap.name||'Haven').split(' ')[0];
-      const cn = $('[data-visit-name]'); if (cn) cn.textContent = (snap.name||'alguém').split(' ')[0];
+      const cn = $('[data-visit-name]'); if (cn) cn.textContent = who;
+      const ey = $('.map__eyebrow'); if (ey) ey.textContent = 'A cidade de ' + who;
+      const ce = $('.ctop__eyebrow'); if (ce) ce.textContent = 'o que ' + who + ' curte';
     } else {
       profile = { widgets: [], bio:'', instagram:'', playlist:'' };
       hi.innerHTML = `<div class="w-empty" style="text-align:center">Esse Haven não existe ou é privado.</div>`;

@@ -1556,8 +1556,19 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .gate__err{margin:6px 0 0; font-size:12px; line-height:1.4; color:#e6917f; max-width:280px}
 
 /* ---------- visitante (perfil público) ---------- */
-.is-visitor .dock{display:none}
+/* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
+   ferramentas do dono (trocar cena, compartilhar meu momento). */
 .is-visitor [data-hi-edit]{display:none}
+.is-visitor .dock__sep,
+.is-visitor .dock [data-scene-btn],
+.is-visitor .dock__share{display:none}
+/* mapa do dono: sem "Novo lugar" nem compartilhar/editar pro visitante */
+.is-visitor .map__acts{display:none}
+/* a barra "monte o seu" só na home; nas outras views o dock basta */
+.is-visitor:not([data-view="home"]) .visitcta{display:none}
+/* na home, sobe a barra pra não cobrir o dock; e dá respiro ao fim do scroll */
+.is-visitor[data-view="home"] .visitcta{bottom:calc(86px + env(safe-area-inset-bottom))}
+.is-visitor .view[data-view="home"]{padding-bottom:24px}
 .visitcta{position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:40;
   display:flex; align-items:center; gap:14px; padding:9px 9px 9px 18px; border-radius:999px; max-width:calc(100% - 28px);
   animation:rise .7s var(--ease)}

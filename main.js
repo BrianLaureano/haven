@@ -156,6 +156,7 @@
   window.HavenApps = apps;          // external app files (map.js…) plug in here
   const hasView = n => views.some(v => v.dataset.view === n);
   let current = 'home';
+  document.body.dataset.view = current;   // CSS usa pra ajustar rodapé no modo visitante
 
   function go(name){
     if (name === current) return;
@@ -163,6 +164,7 @@
     const to   = views.find(v => v.dataset.view === name);
     if (!to) return; // app não construído ainda
     current = name;
+    document.body.dataset.view = name;
     navBtns.forEach(b => b.classList.toggle('is-on', b.dataset.nav === name));
     if (from){
       from.classList.remove('is-on');
