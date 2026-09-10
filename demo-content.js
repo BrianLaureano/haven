@@ -28,7 +28,7 @@
       { emoji: '💌', label: 'Fala comigo', url: 'https://wa.me/5511999999999' },
       { emoji: '☕', label: 'Me paga um café', url: 'https://example.com/tip' }
     ],
-    video: 'https://youtu.be/jfKfPfyJRdk',   // lofi hip hop radio (real, sempre no ar)
+    video: 'https://youtu.be/DWcJFNfaw9c',   // Lofi Girl — beats to sleep/chill (embed OK, verificado)
     week: { mon:'💪', tue:'📚', wed:'🎮', thu:'☕', fri:'🍻', sat:'🎬', sun:'🌿' },
     counter: { label: 'Férias', date: '2026-12-20' },
     quote: 'faça o que te dá paz ✨',

@@ -15,8 +15,10 @@
   const VISIT = new URLSearchParams(location.search).get('u');
   function update(user){
     const db = window.HavenDB;
-    // visitante (link da bio) nunca loga — vê o perfil público
-    const needLogin = !VISIT && db && db.mode === 'firebase' && !user;
+    // visitante (link da bio): nunca gateia, e o nome do cabeçalho é do DONO
+    // do perfil (home.js/loadVisitor manda) — não sobrescrever com a sessão local.
+    if (VISIT){ if (gate) gate.hidden = true; if (outBtn) outBtn.hidden = true; return; }
+    const needLogin = db && db.mode === 'firebase' && !user;
     if (gate) gate.hidden = !needLogin;
     // saudação com o nome de quem entrou
     if (nameEl) nameEl.textContent = user ? firstName(user.name) : (db?.mode === 'firebase' ? 'você' : defaultName);
