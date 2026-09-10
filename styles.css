@@ -1592,15 +1592,18 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   font-size:11px; color:var(--ink-soft); background:rgba(255,255,255,.08); border:1px solid var(--line); transition:all .2s}
 .hello__out:hover{color:var(--ink); background:rgba(255,255,255,.14)}
 
-/* ---------- dock ---------- */
-.dock{align-self:center; display:flex; align-items:center; gap:6px; padding:8px; border-radius:999px}
-.dock__i{width:46px; height:46px; display:grid; place-items:center; border-radius:50%; color:var(--ink-soft);
+/* ---------- dock (bottom-nav rotulado: ícone + texto, intuitivo) ---------- */
+.dock{align-self:center; display:flex; align-items:stretch; gap:2px; padding:7px 9px; border-radius:26px}
+.dock__i{min-width:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  padding:6px 8px 5px; border-radius:15px; color:var(--ink-soft);
   transition:color .25s,background .25s,transform .25s var(--ease)}
-.dock__i:hover{color:var(--ink); background:rgba(255,255,255,.1); transform:translateY(-3px)}
+.dock__lbl{font-size:9.5px; font-weight:600; letter-spacing:.01em; line-height:1; white-space:nowrap}
+.dock__i:hover{color:var(--ink); background:rgba(255,255,255,.1); transform:translateY(-2px)}
 .dock__i.is-on{color:#20262e; background:var(--ink)}
-.dock__i:active{transform:translateY(-1px) scale(.94)}
-.dock__sep{width:1px; height:24px; background:var(--line); margin:0 4px}
+.dock__i:active{transform:translateY(-1px) scale(.96)}
+.dock__sep{width:1px; align-self:center; height:26px; background:var(--line); margin:0 4px}
 .dock__share{color:var(--accent)}
+@media (max-width:400px){ .dock__i{min-width:50px; padding:6px 5px 5px} .dock__lbl{font-size:9px} }
 
 /* ---------- focus ---------- */
 :focus{outline:none}

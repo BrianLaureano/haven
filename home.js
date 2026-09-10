@@ -596,7 +596,10 @@
   function spotlightItem(){
     const all = recentCol().filter(i => i.poster);
     if (!all.length) return null;
-    return all.slice().sort((a,b)=>(b.rating||0)-(a.rating||0) || (b.addedAt||0)-(a.addedAt||0))[0];
+    // prefere item COM backdrop landscape (billboard cinematográfico, sem esticar pôster)
+    const withBd = all.filter(i => i.backdrop);
+    const pool = withBd.length ? withBd : all;
+    return pool.slice().sort((a,b)=>(b.rating||0)-(a.rating||0) || (b.addedAt||0)-(a.addedAt||0))[0];
   }
   async function setBillBg(el, it){
     if (it.backdrop){ el.style.backgroundImage = `url('${it.backdrop}')`; return; }
