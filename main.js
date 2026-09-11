@@ -325,6 +325,9 @@
     const audio = new Audio();
     let tracks = [], cards = [], cur = -1, playing = false, plCover = null, shuffled = false;
     let curArtistId = null, dragX = null, swiped = false;
+    // exposto pro Story compartilhar "ouvindo agora" (arte + faixa + artista)
+    window.HavenMusic = { now(){ const t = tracks[cur] || {}; return { title: (npTitle?.textContent || t.name || '').trim(), artist: (npArtist?.textContent || t.artist || '').trim(), cover: t.cover || plCover || '' }; } };
+    $('[data-share-music]')?.addEventListener('click', () => { try { window.HavenShare?.openMusic?.(); } catch (_) {} });
     const esc = s => (s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
     const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
     const fmtNum = n => {

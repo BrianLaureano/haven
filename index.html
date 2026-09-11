@@ -28,7 +28,7 @@
   <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=56" />
+  <link rel="stylesheet" href="styles.css?v=57" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -107,6 +107,10 @@
           <div class="npnow">
             <div class="npnow__track" data-np-title>—</div>
             <div class="npnow__artist" data-np-artist></div>
+            <button class="npnow__share" data-share-music type="button" aria-label="Compartilhar no story">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+              compartilhar
+            </button>
           </div>
 
           <div class="transport glass" data-transport>
@@ -484,21 +488,21 @@
     </div>
   </div>
 
-  <script src="firebase-config.js?v=56"></script>
+  <script src="firebase-config.js?v=57"></script>
   <!-- ?mock=1 ou ?demo=1 → amostra de Música (capas reais via iTunes) pro player rico sem backend -->
-  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=56"><\/script>');</script>
+  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=57"><\/script>');</script>
   <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
-  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=56"><\/script>');</script>
-  <script src="spotify.js?v=56"></script>
-  <script src="haven-db.js?v=56"></script>
-  <script src="main.js?v=56"></script>
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=57"><\/script>');</script>
+  <script src="spotify.js?v=57"></script>
+  <script src="haven-db.js?v=57"></script>
+  <script src="main.js?v=57"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=56"></script>
-  <script src="catalog.js?v=56"></script>
-  <script src="share.js?v=56"></script>
-  <script src="wallpaper.js?v=56"></script>
-  <script src="home.js?v=56"></script>
-  <script src="auth.js?v=56"></script>
+  <script src="map.js?v=57"></script>
+  <script src="catalog.js?v=57"></script>
+  <script src="share.js?v=57"></script>
+  <script src="wallpaper.js?v=57"></script>
+  <script src="home.js?v=57"></script>
+  <script src="auth.js?v=57"></script>
   <script>
     if ('serviceWorker' in navigator){
       // se um SW novo assumir o controle (deploy novo), recarrega 1x pra pegar o conjunto

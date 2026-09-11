@@ -153,9 +153,14 @@
     if (!url) return;
     let el = document.querySelector('.hvlb');
     if (!el){ el = document.createElement('div'); el.className = 'hvlb';
-      el.innerHTML = '<img alt="" /><button class="hvlb__x" aria-label="Fechar">✕</button>';
+      el.innerHTML = '<img alt="" /><button class="hvlb__x" aria-label="Fechar">✕</button>' +
+        '<button class="hvlb__share" data-lb-share type="button" aria-label="Compartilhar no story">' +
+        '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg> compartilhar</button>';
       const close = () => el.classList.remove('is-on');
-      el.addEventListener('click', e => { if (e.target.tagName !== 'IMG') close(); });
+      el.addEventListener('click', e => {
+        if (e.target.closest('[data-lb-share]')){ const src = el.querySelector('img').src; close(); try { window.HavenShare?.openGallery?.(src); } catch (_) {} return; }
+        if (e.target.tagName !== 'IMG') close();
+      });
       document.body.appendChild(el);
     }
     el.querySelector('img').src = url; requestAnimationFrame(() => el.classList.add('is-on'));

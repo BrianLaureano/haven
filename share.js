@@ -21,7 +21,7 @@
   const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
   let mode = 'moment', item = null, opts = { weather: true, music: true, place: false };
-  let profileData = null, cityData = null, placeData = null;
+  let profileData = null, cityData = null, placeData = null, galleryData = null, quoteText = '';
   let TF = 'Outfit';   // fonte de título = a fonte/tema da pessoa (instagramável)
   const tfFam = () => (String(TF).split(',')[0].trim()) || 'Outfit';
   const hexA = (hex, a) => {
@@ -190,7 +190,7 @@
     return hwReady;
   }
   let layoutKey = (() => { try { return localStorage.getItem('haven.share.layout') || 'card'; } catch { return 'card'; } })();
-  const hasLayout = () => mode === 'media' || mode === 'place' || mode === 'city' || mode === 'profile';
+  const hasLayout = () => ['media','place','city','profile','music','gallery'].includes(mode);
   // fileira de miniaturas (usada nos layouts cheia/revista da cidade)
   function thumbStrip(tiles, x, y, size, gap, max){
     tiles.filter(t => t.img).slice(0, max).forEach((t, i) => {
@@ -653,6 +653,48 @@
     });
   }
 
+  /* ---------- MUSIC card (ouvindo agora: arte + faixa + artista) ---------- */
+  async function drawMusic(){
+    const m = (window.HavenMusic && window.HavenMusic.now && window.HavenMusic.now()) || {};
+    const art = await loadImg(m.cover);
+    const scene = await loadImg($('.scene__img.is-on')?.src);
+    drawLayout({
+      img: art, scene,
+      eyebrow: 'OUVINDO AGORA', eyebrowChip: false, eyebrowColor: accentNow(),
+      title: m.title || 'Som de hoje',
+      subtitle: m.artist || '',
+      note: captionEl.value.trim(),
+      emoji: '🎧', color: accentNow(), ratio: 1
+    });
+  }
+
+  /* ---------- GALLERY card (uma foto sua com a moldura do Haven) ---------- */
+  async function drawGallery(){
+    const shot = await loadImg(galleryData?.url);
+    const scene = await loadImg($('.scene__img.is-on')?.src);
+    drawLayout({
+      img: shot, scene,
+      eyebrow: '', title: (captionEl.value.trim() || galleryData?.caption || 'um instante'),
+      subtitle: '', note: '', emoji: '📷', color: accentNow(), ratio: 1
+    });
+  }
+
+  /* ---------- QUOTE card (uma frase sua, editorial) ---------- */
+  async function drawQuote(){
+    const scene = await loadImg($('.scene__img.is-on')?.src);
+    backdrop(scene); finish();
+    const A = accentNow();
+    const text = (quoteText || '').trim() || 'faça o que te dá paz';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = hexA(A, .92); ctx.font = '600 220px ' + TF;
+    ctx.fillText('“', W / 2, H * 0.34);
+    const lines = wrap(text, '500 78px ' + TF, W - 260, 7);
+    ctx.font = '500 78px ' + TF; ctx.fillStyle = INK;
+    let y = H / 2 - (lines.length * 96) / 2 + 60;
+    lines.forEach(l => { ctx.fillText(l, W / 2, y); y += 96; });
+    footer();
+  }
+
   function footer(){
     ctx.textAlign = 'center'; ctx.font = '600 26px Outfit'; ctx.fillStyle = SOFT;
     if ('letterSpacing' in ctx) ctx.letterSpacing = '7px';
@@ -660,7 +702,17 @@
     ctx.font = '400 24px Outfit'; ctx.fillStyle = DIM; ctx.fillText(dateStr(), W / 2, H - 78);
   }
 
-  async function render(){ await fonts(); if (layoutKey === 'polaroid') await ensureHandwrite(); if (mode === 'media') await drawMedia(); else if (mode === 'profile') await drawProfile(); else if (mode === 'city') await drawCity(); else if (mode === 'place') await drawPlace(); else await drawMoment(); }
+  async function render(){
+    await fonts(); if (layoutKey === 'polaroid') await ensureHandwrite();
+    if (mode === 'media') await drawMedia();
+    else if (mode === 'profile') await drawProfile();
+    else if (mode === 'city') await drawCity();
+    else if (mode === 'place') await drawPlace();
+    else if (mode === 'music') await drawMusic();
+    else if (mode === 'gallery') await drawGallery();
+    else if (mode === 'quote') await drawQuote();
+    else await drawMoment();
+  }
 
   /* ---------- open / close ---------- */
   function openModal(){
@@ -674,7 +726,7 @@
     togglesEl.hidden = mode !== 'moment';
     placeSel.hidden = !(mode === 'moment' && opts.place);
     captionEl.value = '';
-    captionEl.hidden = mode === 'profile' || mode === 'city' || mode === 'place';   // perfil/cidade/lugar não usam legenda
+    captionEl.hidden = ['profile','city','place','quote'].includes(mode);   // esses não usam legenda editável
     captionEl.placeholder = mode === 'media' ? 'sua frase (opcional)' : 'uma legenda (opcional)';
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add('is-on'));
@@ -684,12 +736,21 @@
   function close(){ modal.classList.remove('is-on'); setTimeout(() => { modal.hidden = true; }, 300); }
 
   /* ---------- export ---------- */
-  function filename(){ return (mode === 'media' && item ? item.title.replace(/[^\w]+/g, '-').toLowerCase() : mode === 'profile' ? 'meu-haven' : mode === 'city' ? 'minha-cidade' : mode === 'place' ? 'lugar' : 'haven-momento') + '.png'; }
+  function filename(){
+    const base = mode === 'media' && item ? item.title.replace(/[^\w]+/g, '-').toLowerCase()
+      : mode === 'profile' ? 'meu-haven' : mode === 'city' ? 'minha-cidade' : mode === 'place' ? 'lugar'
+      : mode === 'music' ? 'ouvindo-agora' : mode === 'gallery' ? 'foto' : mode === 'quote' ? 'frase' : 'haven-momento';
+    return base + '.png';
+  }
   async function exportBlob(){ return new Promise(res => canvas.toBlob(res, 'image/png')); }
   async function doShare(){
     const blob = await exportBlob(); if (!blob) return;
     const file = new File([blob], filename(), { type: 'image/png' });
-    const text = (mode === 'media' && item ? item.title : mode === 'profile' ? 'meu Haven ✨' : mode === 'city' ? 'minha cidade ✨' : mode === 'place' ? (placeData?.name || 'um lugar') + ' ✨' : 'meu cantinho de hoje');
+    const m = (window.HavenMusic && window.HavenMusic.now && window.HavenMusic.now()) || {};
+    const text = (mode === 'media' && item ? item.title : mode === 'profile' ? 'meu Haven ✨' : mode === 'city' ? 'minha cidade ✨'
+      : mode === 'place' ? (placeData?.name || 'um lugar') + ' ✨'
+      : mode === 'music' ? 'ouvindo ' + (m.title || 'agora') + ' 🎧'
+      : mode === 'gallery' ? 'um instante ✨' : mode === 'quote' ? (quoteText || 'uma frase') : 'meu cantinho de hoje');
     try {
       if (navigator.canShare && navigator.canShare({ files: [file] })){
         await navigator.share({ files: [file], text }); return;
@@ -719,6 +780,9 @@
     openMedia(it){ mode = 'media'; item = it; TF = (it && it.font) || themeFont(); openModal(); },
     openProfile(data){ mode = 'profile'; item = null; profileData = data || {}; TF = (data && data.font) || themeFont(); openModal(); },
     openCity(data){ mode = 'city'; item = null; cityData = data || {}; TF = themeFont(); openModal(); },
-    openPlace(data){ mode = 'place'; item = null; placeData = data || {}; TF = themeFont(); openModal(); }
+    openPlace(data){ mode = 'place'; item = null; placeData = data || {}; TF = themeFont(); openModal(); },
+    openMusic(){ mode = 'music'; item = null; TF = themeFont(); openModal(); },
+    openGallery(url, caption){ mode = 'gallery'; item = null; galleryData = { url, caption: caption || '' }; TF = themeFont(); openModal(); },
+    openQuote(text){ mode = 'quote'; item = null; quoteText = text || ''; TF = themeFont(); openModal(); }
   };
 })();

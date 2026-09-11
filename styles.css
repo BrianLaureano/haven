@@ -343,6 +343,13 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 .hvlb img{max-width:100%; max-height:100%; border-radius:16px; box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .hvlb__x{position:absolute; top:18px; right:18px; width:40px; height:40px; border-radius:50%; border:0; cursor:pointer;
   background:rgba(255,255,255,.12); color:#fff; font-size:16px}
+.hvlb__share{position:absolute; left:50%; bottom:calc(28px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+  display:inline-flex; align-items:center; gap:7px; padding:11px 20px; border-radius:999px; cursor:pointer;
+  font-family:inherit; font-size:13.5px; font-weight:600; color:#12161c; background:var(--ink); border:0;
+  box-shadow:0 10px 30px rgba(0,0,0,.4); transition:transform .18s var(--spring)}
+.hvlb__share:active{transform:translateX(-50%) scale(.95)}
+.hvlb__share svg{color:var(--accent)}
+.is-visitor .hvlb__share{display:none}
 /* emoji picker */
 .emojipick{position:fixed; inset:0; z-index:75; display:grid; place-items:end center; padding:0 0 90px;
   background:rgba(6,8,12,.5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; transition:opacity .2s var(--ease)}
@@ -798,6 +805,14 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   text-shadow:0 2px 16px rgba(8,10,14,.55), 0 1px 3px rgba(8,10,14,.5);
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical}
 .npnow__artist{font-size:13px; color:var(--ink-soft); margin-top:3px; text-shadow:0 1px 10px rgba(8,10,14,.5)}
+.npnow__share{display:inline-flex; align-items:center; gap:6px; margin-top:11px; padding:8px 15px; border-radius:999px;
+  font-family:inherit; font-size:12.5px; font-weight:600; color:var(--ink);
+  background:rgba(255,255,255,.1); border:1px solid var(--line);
+  transition:transform .18s var(--spring), background .2s}
+.npnow__share:hover{background:rgba(255,255,255,.18)}
+.npnow__share:active{transform:scale(.94)}
+.npnow__share svg{color:var(--accent)}
+.is-visitor .npnow__share{display:none}
 
 /* transport (barra de vidro flutuante) */
 .transport{display:flex; align-items:center; gap:10px; width:100%; max-width:580px;
