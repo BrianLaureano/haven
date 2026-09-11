@@ -339,10 +339,12 @@
     if (!active) return;
     active.name = (elName.value.trim() || 'Sem nome');
     active.note = elNote.value.trim();
+    const wasNew = !!active._draft;
     if (active._draft){ delete active._draft; places.push(active); }
     await resolveCover(active);
     save(); window.HavenPublish?.(); refreshMarker(active); updateCount(); refreshLines();
     closeSheet();
+    if (wasNew) window.HavenFX?.reward({ label: `${active.name} entrou na sua cidade ✓` });
   });
   $('[data-sheet-del]').addEventListener('click', () => {
     if (!active) return;
@@ -741,6 +743,7 @@
     markPosted(compose.placeId);
     closeCompose();
     toast('rôle publicado ✨');
+    window.HavenFX?.reward({ big: false });
     if (mapMode !== 'role') await setMode('role');
     else { await loadRoles(); renderRoleMarkers(); updateCount(); renderGuide(); }
   });

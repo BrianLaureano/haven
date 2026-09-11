@@ -345,10 +345,12 @@
     }
     const arr = col[current.type] || (col[current.type] = []);
     const i = arr.findIndex(x => x.id === current.id);
+    const isNew = i < 0;
     if (i >= 0) arr[i] = current; else arr.push(current);
     persist(); window.HavenPublish?.(); closeItem();
     if (type === current.type && !searchEl.value) renderCollection();
     else if (results) renderResults(results);
+    if (isNew) window.HavenFX?.reward({ label: `${current.title || 'Título'} entrou na sua coleção ✓` });
   });
   btnDel.addEventListener('click', () => {
     const arr = col[current.type] || [];

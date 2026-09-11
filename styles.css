@@ -1626,6 +1626,33 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   .map__styles button:active, .bill__play:active, .map__add:active, .ccard:active .ccard__art{ transform:none }
 }
 
+/* ---------- recompensa (salvar/publicar = dopamina) ---------- */
+.reward{position:fixed; z-index:97; pointer-events:none; transform:translate(-50%,-50%)}
+.reward i{position:absolute; left:0; top:0; border-radius:50%; transform:translate(-50%,-50%);
+  animation:rewardP var(--dur,.8s) cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes rewardP{0%{transform:translate(-50%,-50%) scale(.3); opacity:1}
+  70%{opacity:1} 100%{transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1); opacity:0}}
+.reward__ring{position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%; transform:translate(-50%,-50%);
+  border:2.5px solid var(--accent); animation:rewardRing .72s ease-out forwards}
+@keyframes rewardRing{0%{transform:translate(-50%,-50%) scale(.2); opacity:.9}
+  100%{transform:translate(-50%,-50%) scale(6.5); opacity:0}}
+.reward__badge{position:absolute; left:0; top:0; transform:translate(-50%,-50%); display:grid; place-items:center;
+  width:60px; height:60px; border-radius:50%; color:#fff; background:var(--accent);
+  box-shadow:0 10px 34px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation:rewardBadge 1.15s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes rewardBadge{0%{transform:translate(-50%,-50%) scale(0); opacity:0}
+  28%{transform:translate(-50%,-50%) scale(1.18); opacity:1}
+  50%{transform:translate(-50%,-50%) scale(1)}
+  82%{opacity:1} 100%{transform:translate(-50%,-50%) scale(1); opacity:0}}
+.reward__badge--rm{animation:rewardBadgeRM 1s ease forwards}
+@keyframes rewardBadgeRM{0%{opacity:0; transform:translate(-50%,-50%) scale(.9)}
+  25%{opacity:1; transform:translate(-50%,-50%) scale(1)} 80%{opacity:1} 100%{opacity:0}}
+.htoast{position:fixed; left:50%; bottom:calc(98px + env(safe-area-inset-bottom)); transform:translate(-50%,16px);
+  z-index:96; padding:11px 20px; border-radius:999px; font-size:13.5px; font-weight:600; color:var(--ink);
+  white-space:nowrap; opacity:0; pointer-events:none;
+  transition:opacity .3s var(--ease), transform .35s var(--spring)}
+.htoast.is-on{opacity:1; transform:translate(-50%,0)}
+
 /* ---------- visitante (perfil público) ---------- */
 /* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
    ferramentas do dono (trocar cena, compartilhar meu momento). */

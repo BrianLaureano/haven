@@ -7,6 +7,74 @@
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
+  /* ============================================================
+     Recompensa (dopamina) — API global chamada ao salvar/publicar.
+     Partículas + anel + selo ✓ + toast + háptica. Respeita reduced-motion.
+     ============================================================ */
+  const FX = (() => {
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const haptic = p => { try { navigator.vibrate && navigator.vibrate(p); } catch {} };
+    const accent = () => (getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c9a8f0');
+    let audioCtx = null;
+    const soundOn = () => { try { return localStorage.getItem('haven.sound') === '1'; } catch { return false; } };
+    function chime(){
+      if (!soundOn()) return;
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        [660, 990].forEach((f, k) => {
+          const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+          const t = audioCtx.currentTime + k * 0.09;
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+          o.start(t); o.stop(t + 0.24);
+        });
+      } catch {}
+    }
+    let toastT;
+    function toast(msg){
+      if (!msg) return;
+      let el = $('.htoast');
+      if (!el){ el = document.createElement('div'); el.className = 'htoast glass'; document.body.appendChild(el); }
+      el.textContent = msg; el.classList.remove('is-on'); void el.offsetWidth; el.classList.add('is-on');
+      clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('is-on'), 2400);
+    }
+    function reward(opts = {}){
+      const { x = innerWidth / 2, y = innerHeight * 0.42, label, big = true } = opts;
+      haptic(big ? [14, 40, 14, 40, 20] : [10, 30, 10]); chime();
+      if (label) toast(label);
+      if (reduce){
+        const b = badgeEl(x, y); b.classList.add('reward__badge--rm'); document.body.appendChild(b.parentNode);
+        setTimeout(() => b.parentNode.remove(), 1100); return;
+      }
+      const host = document.createElement('div'); host.className = 'reward';
+      host.style.left = x + 'px'; host.style.top = y + 'px';
+      const col = accent();
+      const ring = document.createElement('span'); ring.className = 'reward__ring'; host.appendChild(ring);
+      const N = big ? 22 : 12;
+      for (let i = 0; i < N; i++){
+        const s = document.createElement('i');
+        const a = (Math.PI * 2 * i) / N + Math.random() * 0.35;
+        const d = (big ? 66 : 44) + Math.random() * (big ? 78 : 44);
+        s.style.setProperty('--tx', Math.round(Math.cos(a) * d) + 'px');
+        s.style.setProperty('--ty', Math.round(Math.sin(a) * d) + 'px');
+        s.style.setProperty('--dur', (0.6 + Math.random() * 0.45) + 's');
+        s.style.background = i % 3 === 0 ? '#fff' : col;
+        const sz = (5 + Math.random() * 6) + 'px'; s.style.width = sz; s.style.height = sz;
+        host.appendChild(s);
+      }
+      host.appendChild(badgeInner());
+      document.body.appendChild(host);
+      setTimeout(() => host.remove(), 1300);
+    }
+    const CHECK = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+    function badgeInner(){ const b = document.createElement('span'); b.className = 'reward__badge'; b.innerHTML = CHECK; return b; }
+    function badgeEl(x, y){ const h = document.createElement('div'); h.className = 'reward'; h.style.left = x + 'px'; h.style.top = y + 'px'; const b = badgeInner(); h.appendChild(b); return b; }
+    return { reward, toast, haptic };
+  })();
+  window.HavenFX = FX;
+  window.HavenToast = FX.toast;
+
   /* ---------- clock + date + greeting ---------- */
   const elClock = $('[data-clock]');
   const elDate  = $('[data-date]');
