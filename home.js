@@ -1108,7 +1108,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=60'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=61'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1187,7 +1187,7 @@
       <div class="onb__card glass">
         <div class="onb__badge">✨ bem-vindo(a)</div>
         <h3 class="onb__hi">Oi, ${esc(first)}!</h3>
-        <p class="onb__sub">Essa é a sua Home — o cantinho que as pessoas veem pelo link da sua bio. Deixa com a sua cara em 30 segundos.</p>
+        <p class="onb__sub">Toca num vibe e vê a sua Home aí em cima mudar na hora ✨ — deixa com a sua cara em 30 segundos.</p>
         <div class="onb__vibe">
           <span class="onb__vlbl">comece por um modelo (opcional)</span>
           <div class="onb__vibes" data-onb-tpls></div>
