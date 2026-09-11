@@ -29,6 +29,7 @@
     book:  ['O Nome do Vento', 'Duna', '1984'],
     game:  ['Elden Ring', 'Hollow Knight', 'Hades']
   };
+  const skelGrid = (n = 8) => `<div class="cgrid cgrid--skel">${Array.from({ length: n }).map(() => '<span class="cskel"></span>').join('')}</div>`;
   // paleta on-brand (fica bonita sobre o vidro escuro do Haven)
   const PALETTE = ['#e6a4c4','#8fb8e8','#8fd8b0','#c9a8f0','#f0b48a','#ecd58a','#7fb0a0','#e88a8a'];
 
@@ -241,7 +242,7 @@
     if (!q) return renderCollection();
     if (!keyFor(type)) return renderSoon();
     const my = ++seq;
-    bodyEl.innerHTML = `<div class="cload">buscando…</div>`;
+    bodyEl.innerHTML = skelGrid(6);
     search(type, q).then(items => { if (my === seq) renderResults(items); })
       .catch(() => { if (my === seq) bodyEl.innerHTML = `<div class="cempty"><b>Deu ruim na busca</b><span>Confira a conexão ou a chave.</span></div>`; });
   }
@@ -444,7 +445,7 @@
   }
   async function ensure(){
     if (started) return; started = true;
-    bodyEl.innerHTML = `<div class="cload">carregando…</div>`;
+    bodyEl.innerHTML = skelGrid(8);
     try { await window.HavenDB?.ready; await load(); } catch {}
     renderTabs(); csWrap.hidden = isCustom(type);
     if (!isCustom(type)) searchEl.placeholder = TYPES[type].ph;

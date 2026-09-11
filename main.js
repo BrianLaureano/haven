@@ -226,11 +226,14 @@
   let current = 'home';
   document.body.dataset.view = current;   // CSS usa pra ajustar rodapé no modo visitante
 
+  const NAV_ORDER = ['home', 'map', 'music', 'catalog'];
   function go(name){
     if (name === current) return;
     const from = views.find(v => v.dataset.view === current);
     const to   = views.find(v => v.dataset.view === name);
     if (!to) return; // app não construído ainda
+    // direção do deslize: avança (aba à direita) entra da direita; volta, da esquerda
+    const dir = (NAV_ORDER.indexOf(name) - NAV_ORDER.indexOf(current)) >= 0 ? 1 : -1;
     current = name;
     document.body.dataset.view = name;
     navBtns.forEach(b => b.classList.toggle('is-on', b.dataset.nav === name));
@@ -239,6 +242,7 @@
       setTimeout(() => { from.hidden = true; }, 380);
     }
     to.hidden = false;
+    to.style.setProperty('--enter-x', (dir * 46) + 'px');
     requestAnimationFrame(() => to.classList.add('is-on'));
     setTimeout(() => to.classList.add('is-on'), 30); // fallback if rAF is throttled
     try { apps[name]?.ensure?.(); } catch(e){ console.warn('[haven] ensure', name, e); }

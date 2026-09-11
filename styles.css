@@ -70,9 +70,9 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 /* ---------- views (flow between apps) ---------- */
 .view{flex:1; display:flex; flex-direction:column; min-height:0}
 .view[hidden]{display:none}
-.view{opacity:0; transform:translateY(10px) scale(.996); transition:opacity .5s var(--ease), transform .5s var(--ease)}
+.view{opacity:0; transform:translate(var(--enter-x,0px),10px) scale(.996); transition:opacity .5s var(--ease), transform .5s var(--ease)}
 .view.is-on{opacity:1; transform:none}
-@media (prefers-reduced-motion:reduce){ .view{transition:none} }
+@media (prefers-reduced-motion:reduce){ .view{transition:none; --enter-x:0px} }
 
 /* entrance */
 [data-in]{opacity:0; transform:translateY(14px); animation:rise 1s var(--ease) forwards}
@@ -1025,6 +1025,13 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 
 .cbody{flex:1; min-height:0; overflow-y:auto; margin-top:18px; padding-right:2px; scrollbar-width:thin}
 .cload,.cempty{padding:40px 8px; text-align:center; color:var(--ink-soft)}
+/* skeleton de carregamento (perf percebida) */
+@keyframes shimmer{0%{background-position:200% 0} 100%{background-position:-200% 0}}
+.cgrid--skel{pointer-events:none; margin-top:4px}
+.cskel{aspect-ratio:2/3; border-radius:16px; background:
+  linear-gradient(100deg, rgba(255,255,255,.04) 28%, rgba(255,255,255,.12) 48%, rgba(255,255,255,.04) 68%);
+  background-size:200% 100%; animation:shimmer 1.25s linear infinite}
+@media (prefers-reduced-motion:reduce){ .cskel{animation:none; background:rgba(255,255,255,.06)} }
 .cempty b{display:block; color:var(--ink); font-size:15px; font-weight:500; margin-bottom:4px}
 .cempty span{font-size:13px; color:var(--ink-dim)}
 /* empty state rico — painel legível em qualquer cena (clara ou escura) */
