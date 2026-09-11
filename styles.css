@@ -1668,6 +1668,25 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   transition:opacity .3s var(--ease), transform .35s var(--spring)}
 .htoast.is-on{opacity:1; transform:translate(-50%,0)}
 
+/* ---------- folha de compartilhar o link (QR + copiar) ---------- */
+.lsheet{position:fixed; inset:0; z-index:90; display:grid; place-items:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .3s var(--ease)}
+.lsheet.is-on{opacity:1; pointer-events:auto}
+.lsheet__scrim{position:absolute; inset:0; background:rgba(6,8,12,.72); backdrop-filter:blur(10px)}
+.lsheet__card{position:relative; z-index:1; width:100%; max-width:344px; padding:28px 24px 22px; border-radius:28px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:13px; transform:translateY(16px) scale(.98); transition:transform .38s var(--spring)}
+.lsheet.is-on .lsheet__card{transform:none}
+.lsheet__x{position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%; border:0; cursor:pointer; background:rgba(255,255,255,.1); color:var(--ink-soft); font-size:14px}
+.lsheet__eyebrow{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-dim)}
+.lsheet__qr{width:182px; height:182px; display:grid; place-items:center; border-radius:18px; background:#fff; padding:10px; box-shadow:0 12px 30px rgba(0,0,0,.32)}
+.lsheet__qr img{width:100%; height:100%; image-rendering:pixelated; display:block}
+.lsheet__qrloading{font-size:12px; color:#6a6a6a}
+.lsheet__url{font-size:12.5px; color:var(--ink-soft); word-break:break-all; line-height:1.4; max-width:294px}
+.lsheet__copy{width:100%; justify-content:center; padding:13px}
+.lsheet__row{display:flex; gap:10px; width:100%}
+.lsheet__row .btn{flex:1; justify-content:center}
+.lsheet__native{margin-top:2px; background:none; border:0; color:var(--ink-soft); font-family:inherit; font-size:13px; cursor:pointer; padding:6px}
+.lsheet__native:hover{color:var(--ink)}
+
 /* ---------- visitante (perfil público) ---------- */
 /* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
    ferramentas do dono (trocar cena, compartilhar meu momento). */

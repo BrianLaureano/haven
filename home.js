@@ -676,7 +676,7 @@
       bindSocials(c);
       c.querySelector('[data-cover]')?.addEventListener('click', () => pickImage(({id,url}) => { profile.coverId = id; profile.cover = url || profile.cover; save(); render(); }));
       c.querySelector('[data-ava]')?.addEventListener('click', () => pickImage(({id,url}) => { profile.photoId = id; profile.photo = url || profile.photo; save(); render(); }));
-      c.querySelector('[data-share-link]')?.addEventListener('click', e => shareLink(e.currentTarget));
+      c.querySelector('[data-share-link]')?.addEventListener('click', () => shareSheet());
       c.querySelector('[data-share-card]')?.addEventListener('click', shareProfileCard);
       if (editing){   // perfil também tem estilos (não removível)
         c.classList.add('is-edit');
@@ -1102,6 +1102,64 @@
     }
     try { await navigator.clipboard.writeText(url); say('link copiado ✓'); }
     catch { window.prompt('Copie seu link do Haven:', url); }
+  }
+  /* folha de compartilhar: link + copiar (recompensa) + QR pra bio + card story */
+  let qrLoad;
+  function ensureQR(){
+    if (window.qrcode) return Promise.resolve(true);
+    if (qrLoad) return qrLoad;
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=58'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    return qrLoad;
+  }
+  async function shareSheet(){
+    const url = myLink();
+    let el = document.querySelector('[data-lsheet]');
+    if (!el){
+      el = document.createElement('div'); el.className = 'lsheet'; el.dataset.lsheet = ''; el.hidden = true;
+      el.innerHTML = `
+        <div class="lsheet__scrim" data-lsheet-close></div>
+        <div class="lsheet__card glass">
+          <button class="lsheet__x" data-lsheet-close aria-label="Fechar">✕</button>
+          <div class="lsheet__eyebrow">seu link · cola na bio</div>
+          <div class="lsheet__qr" data-lsheet-qr></div>
+          <div class="lsheet__url" data-lsheet-url></div>
+          <button class="btn btn--go lsheet__copy" data-lsheet-copy type="button">Copiar link</button>
+          <div class="lsheet__row">
+            <button class="btn btn--ghost" data-lsheet-qrdl type="button">Baixar QR</button>
+            <button class="btn btn--ghost" data-lsheet-story type="button">Card pro story</button>
+          </div>
+          <button class="lsheet__native" data-lsheet-native type="button" hidden>Compartilhar…</button>
+        </div>`;
+      document.body.appendChild(el);
+      const closeIt = () => el.classList.remove('is-on');
+      el.querySelectorAll('[data-lsheet-close]').forEach(b => b.addEventListener('click', closeIt));
+      el.querySelector('[data-lsheet-copy]').addEventListener('click', async () => {
+        const u = el.dataset.url || '';
+        try { await navigator.clipboard.writeText(u); } catch { window.prompt('Copie seu link do Haven:', u); }
+        window.HavenFX?.reward({ label: 'link copiado ✓' });
+      });
+      el.querySelector('[data-lsheet-story]').addEventListener('click', () => { closeIt(); shareProfileCard(); });
+      el.querySelector('[data-lsheet-qrdl]').addEventListener('click', () => {
+        const img = el.querySelector('[data-lsheet-qr] img'); if (!img) return;
+        const a = document.createElement('a'); a.href = img.src; a.download = 'haven-qr.png'; document.body.appendChild(a); a.click(); a.remove();
+      });
+      if (navigator.share){
+        const n = el.querySelector('[data-lsheet-native]'); n.hidden = false;
+        n.addEventListener('click', () => { navigator.share({ title: 'Meu Haven', text: 'dá um oi no meu Haven ✨', url: el.dataset.url }).catch(() => {}); });
+      }
+    }
+    el.dataset.url = url;
+    el.querySelector('[data-lsheet-url]').textContent = url.replace(/^https?:\/\//, '');
+    const qrHost = el.querySelector('[data-lsheet-qr]');
+    qrHost.innerHTML = '<span class="lsheet__qrloading">gerando QR…</span>';
+    ensureQR().then(ok => {
+      if (el.dataset.url !== url) return;   // outra abertura assumiu
+      if (ok && window.qrcode){
+        try { const qr = window.qrcode(0, 'M'); qr.addData(url); qr.make(); qrHost.innerHTML = qr.createImgTag(6, 4); }
+        catch (_) { qrHost.innerHTML = ''; }
+      } else qrHost.innerHTML = '';
+    });
+    el.hidden = false; requestAnimationFrame(() => el.classList.add('is-on'));
   }
   function shareProfileCard(){
     const favs = [...(col.movie||[]), ...(col.book||[]), ...(col.game||[])]
