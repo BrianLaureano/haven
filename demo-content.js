@@ -19,19 +19,19 @@
     widgets: ['status','destaque','now','video','galeria','frase','cidade','filmes','livros','jogos','semana','contador','links','memories','social'],
     accent: '#c9a8f0', font: 'space', theme: '',
     photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=320&h=320&fit=crop&crop=faces',
-    cover: un('1543059080-f9b1272213d5', 1000, 340),   // skyline de São Paulo (Paulista)
+    cover: 'assets/demo/cover.jpg',   // skyline de São Paulo no crepúsculo (Pinterest, self-hosted)
     bio: 'designer de produto · café de especialidade, cinema e um bom RPG. construindo coisas bonitas em São Paulo ✨',
     instagram: 'brian.haven',
     socials: { instagram: 'brian.haven', tiktok: 'brianhaven', twitch: 'brianplays', x: 'brianx' },
     status: { emoji: '🎧', text: 'codando e ouvindo lo-fi' },
-    pin: { img: un('1547658719-da2b51169166', 800, 600), title: 'Meu portfólio', caption: 'projetos de UI/UX e front-end', link: 'https://github.com/BrianLaureano' },
+    pin: { img: 'assets/demo/pin.jpg', title: 'Meu portfólio', caption: 'projetos de UI/UX e front-end', link: 'https://github.com/BrianLaureano' },
     gallery: [
-      un('1495474472287-4d71bcdd2085',400),   // café com amigos (latte art)
-      un('1543059080-f9b1272213d5',400),       // skyline SP
-      un('1504674900247-0877df9cc836',400),     // prato/comida
-      un('1501785888041-af3ef285b470',400),     // viagem (lago)
-      un('1559496417-e7f25cb247f3',400),        // café (estética)
-      un('1467232004584-a241de8bcf5d',400)      // setup/mesa de trabalho
+      'assets/demo/g1.jpg',   // café de especialidade (vapor)
+      'assets/demo/g2.jpg',   // torres de SP à noite
+      'assets/demo/g3.jpg',   // centro de SP no pôr do sol (torre Banespa)
+      'assets/demo/g4.jpg',   // Ibirapuera (lago + verde)
+      'assets/demo/g5.jpg',   // mesa de trabalho / mockups de UI
+      'assets/demo/g6.jpg'    // Beco do Batman (arte de rua)
     ].map(u => ({ url: u })),
     links: [
       { emoji: '💼', label: 'Portfólio', url: 'https://github.com/BrianLaureano' },
@@ -73,12 +73,12 @@
 
   // lugares REAIS de São Paulo (coordenadas conferidas)
   const placesArr = [
-    { id:'p1', cat:'cafe',   name:'Coffee Lab',          lat:-23.5546, lng:-46.6899, rating:5, note:'Referência de café de especialidade na Vila Madalena. Balcão, método e tempo parando.', photos:[{ id:'ph1', url: un('1442512595331-e89e73853f31',600), ts: now-1e8 }] },
-    { id:'p2', cat:'outro',  name:'MASP',                lat:-23.5614, lng:-46.6558, rating:5, note:'O vão livre e o acervo nos cavaletes de vidro da Lina Bo Bardi. Ícone da Paulista.', photos:[{ id:'ph2', url: un('1449824913935-59a10b8d2000',600), ts: now-2e8 }] },
-    { id:'p3', cat:'role',   name:'Beco do Batman',      lat:-23.5548, lng:-46.6912, rating:4, note:'Grafite de ponta a ponta na Vila Madalena. Melhor no fim de tarde, sem multidão.', photos:[{ id:'ph3', url: un('1607604276583-eef5d076aa5f',600), ts: now-3e8 }] },
-    { id:'p4', cat:'parque', name:'Parque Ibirapuera',   lat:-23.5874, lng:-46.6576, rating:5, note:'Tarde de domingo, o gramado inteiro nosso. Volto sempre que a cabeça pesa.', photos:[{ id:'ph4', url: un('1441974231531-c6227db76b6e',600), ts: now-4e8 }] },
-    { id:'p5', cat:'comida', name:'Mercado Municipal',   lat:-23.5416, lng:-46.6294, rating:4, note:'O sanduíche de mortadela e o pastel de bacalhau. Vai com fome.', photos:[{ id:'ph5', url: un('1488459716781-31db52582fe9',600), ts: now-5e8 }] },
-    { id:'p6', cat:'vista',  name:'Mirante 9 de Julho',  lat:-23.5709, lng:-46.6403, rating:4, note:'Café com a cidade toda embaixo e pôr do sol de graça.', photos:[{ id:'ph6', url: un('1543059080-f9b1272213d5',600), ts: now-6e8 }] }
+    { id:'p1', cat:'cafe',   name:'Coffee Lab',          lat:-23.5546, lng:-46.6899, rating:5, note:'Referência de café de especialidade na Vila Madalena. Balcão, método e tempo parando.', photos:[{ id:'ph1', url: 'assets/demo/coffee.jpg', ts: now-1e8 }] },
+    { id:'p2', cat:'outro',  name:'MASP',                lat:-23.5614, lng:-46.6558, rating:5, note:'O vão livre e o acervo nos cavaletes de vidro da Lina Bo Bardi. Ícone da Paulista.', photos:[{ id:'ph2', url: 'assets/demo/masp.jpg', ts: now-2e8 }] },
+    { id:'p3', cat:'role',   name:'Beco do Batman',      lat:-23.5548, lng:-46.6912, rating:4, note:'Grafite de ponta a ponta na Vila Madalena. Melhor no fim de tarde, sem multidão.', photos:[{ id:'ph3', url: 'assets/demo/beco.jpg', ts: now-3e8 }] },
+    { id:'p4', cat:'parque', name:'Parque Ibirapuera',   lat:-23.5874, lng:-46.6576, rating:5, note:'Tarde de domingo, o gramado inteiro nosso. Volto sempre que a cabeça pesa.', photos:[{ id:'ph4', url: 'assets/demo/ibira.jpg', ts: now-4e8 }] },
+    { id:'p5', cat:'comida', name:'Mercado Municipal',   lat:-23.5416, lng:-46.6294, rating:4, note:'O sanduíche de mortadela e o pastel de bacalhau. Vai com fome.', photos:[{ id:'ph5', url: 'assets/demo/mercado.jpg', ts: now-5e8 }] },
+    { id:'p6', cat:'vista',  name:'Mirante 9 de Julho',  lat:-23.5709, lng:-46.6403, rating:4, note:'Café com a cidade toda embaixo e pôr do sol de graça.', photos:[{ id:'ph6', url: 'assets/demo/mirante.jpg', ts: now-6e8 }] }
   ];
   set('places', placesArr);
 
@@ -101,9 +101,9 @@
 
   // rôle agora (camada ao vivo) — nó COMPARTILHADO (chave haven.shared.role)
   try { localStorage.setItem('haven.shared.role', JSON.stringify([
-    { _k:'r1', placeId:'p1', placeName:'Coffee Lab',        cat:'cafe',   lat:-23.5546, lng:-46.6899, vibe:'tranquilo',   photoUrl:un('1554118811-1e0d58224f24',600),  ts: now-1000*60*9,  by:'u2', byName:'Marina', confirms:3 },
-    { _k:'r2', placeId:'p5', placeName:'Mercado Municipal', cat:'comida', lat:-23.5416, lng:-46.6294, vibe:'lotado',      photoUrl:un('1504674900247-0877df9cc836',600),   ts: now-1000*60*26, by:'u3', byName:'Léo',    confirms:5 },
-    { _k:'r3', placeId:'p4', placeName:'Parque Ibirapuera', cat:'parque', lat:-23.5874, lng:-46.6576, vibe:'movimentado', photoUrl:un('1441974231531-c6227db76b6e',600),   ts: now-1000*60*48, by:'u4', byName:'Duda',   confirms:2 }
+    { _k:'r1', placeId:'p1', placeName:'Coffee Lab',        cat:'cafe',   lat:-23.5546, lng:-46.6899, vibe:'tranquilo',   photoUrl:'assets/demo/g1.jpg',      ts: now-1000*60*9,  by:'u2', byName:'Marina', confirms:3 },
+    { _k:'r2', placeId:'p5', placeName:'Mercado Municipal', cat:'comida', lat:-23.5416, lng:-46.6294, vibe:'lotado',      photoUrl:'assets/demo/mercado.jpg', ts: now-1000*60*26, by:'u3', byName:'Léo',    confirms:5 },
+    { _k:'r3', placeId:'p4', placeName:'Parque Ibirapuera', cat:'parque', lat:-23.5874, lng:-46.6576, vibe:'movimentado', photoUrl:'assets/demo/ibira.jpg',   ts: now-1000*60*48, by:'u4', byName:'Duda',   confirms:2 }
   ])); } catch (_) {}
 
   set('wallpaper', { sel: { mode: 'scene', name: 'lavender' } });
