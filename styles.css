@@ -1012,6 +1012,22 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .cload,.cempty{padding:40px 8px; text-align:center; color:var(--ink-soft)}
 .cempty b{display:block; color:var(--ink); font-size:15px; font-weight:500; margin-bottom:4px}
 .cempty span{font-size:13px; color:var(--ink-dim)}
+/* empty state rico — painel legível em qualquer cena (clara ou escura) */
+.cempty--rich{margin:34px auto 0; max-width:340px; padding:28px 22px; border-radius:22px;
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  background:rgba(16,20,26,.5); backdrop-filter:blur(14px) saturate(1.1); -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  border:1px solid rgba(255,255,255,.1); box-shadow:0 18px 46px rgba(0,0,0,.4)}
+.cempty--rich .cempty__ico{display:grid; place-items:center; width:54px; height:54px; border-radius:17px;
+  color:var(--accent); background:rgba(255,255,255,.08); border:1px solid var(--line)}
+.cempty--rich .cempty__ico svg{width:27px; height:27px}
+.cempty--rich b{color:var(--ink); font-size:16.5px; font-weight:600; margin:2px 0 0}
+.cempty--rich span{color:var(--ink-soft); font-size:13px; line-height:1.5}
+.cempty__chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:6px}
+.cempty__chip{padding:8px 14px; border-radius:999px; font-family:inherit; font-size:13px; font-weight:500;
+  color:var(--ink); background:rgba(255,255,255,.09); border:1px solid var(--line);
+  transition:transform .2s var(--ease), background .2s}
+.cempty__chip:hover{background:rgba(255,255,255,.17); transform:translateY(-2px)}
+.cempty__chip:active{transform:scale(.95)}
 .crow{display:flex; align-items:baseline; gap:8px; margin-bottom:12px}
 .crow__label{font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
 .crow__n{font-size:12px; color:var(--ink-dim)}
@@ -1039,6 +1055,21 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .ccard:hover .ccard__go b{transform:none}
 .ccard__t{font-size:13.5px; font-weight:600; line-height:1.25; color:var(--ink); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
 .ccard__s{font-size:11px; color:var(--ink-soft)}
+/* legibilidade de texto direto sobre a cena (cenas claras não podem apagar o texto) */
+.ctop__title h2, .ctop__eyebrow, .mtop__title h2, .mtop__eyebrow,
+.crow__label, .crow__n, .ccard__t, .ccard__s{ text-shadow:0 1px 3px rgba(0,0,0,.34) }
+/* entrada escalonada e suave da grade da coleção (deixa o browsing/adicionar vivo) */
+@keyframes cardIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:no-preference){
+  .cgrid .ccard{animation:cardIn .45s var(--ease) both}
+  .cgrid .ccard:nth-child(1){animation-delay:.02s}
+  .cgrid .ccard:nth-child(2){animation-delay:.06s}
+  .cgrid .ccard:nth-child(3){animation-delay:.10s}
+  .cgrid .ccard:nth-child(4){animation-delay:.14s}
+  .cgrid .ccard:nth-child(5){animation-delay:.18s}
+  .cgrid .ccard:nth-child(6){animation-delay:.22s}
+  .cgrid .ccard:nth-child(n+7){animation-delay:.24s}
+}
 
 /* destaque (hero) da coleção — estilo revista */
 .chero{position:relative; border-radius:22px; overflow:hidden; margin-bottom:20px; min-height:210px; cursor:pointer;
@@ -1542,16 +1573,29 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
    ============================================================ */
 .gate{position:fixed; inset:0; z-index:80; display:grid; place-items:center; padding:24px;
   background:rgba(10,13,18,.55); backdrop-filter:blur(16px) saturate(1.1)}
-.gate__card{width:100%; max-width:360px; padding:38px 30px 30px; border-radius:26px; text-align:center;
-  display:flex; flex-direction:column; align-items:center; gap:14px; animation:rise .7s var(--ease)}
-.gate__mark{font-size:34px; font-weight:600; letter-spacing:-.01em; color:var(--ink)}
-.gate__tag{margin:0; font-size:14px; line-height:1.55; color:var(--ink-soft); max-width:260px}
-.gate__btn{margin-top:8px; display:inline-flex; align-items:center; gap:11px; padding:13px 22px; border-radius:14px;
+.gate__card{width:100%; max-width:372px; padding:30px 30px 26px; border-radius:28px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:12px; animation:rise .7s var(--ease)}
+.gate__brand{display:inline-flex; align-items:center; gap:9px}
+.gate__logo{display:grid; place-items:center; width:40px; height:40px; border-radius:12px;
+  color:var(--accent); background:rgba(255,255,255,.08); border:1px solid var(--line)}
+.gate__mark{font-size:24px; font-weight:600; letter-spacing:-.01em; color:var(--ink)}
+.gate__head{margin:6px 0 0; font-size:26px; line-height:1.15; font-weight:600; letter-spacing:-.02em; color:var(--ink); max-width:300px}
+.gate__tag{margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-soft); max-width:290px}
+.gate__peek{display:flex; align-items:center; justify-content:center; margin:6px 0 2px}
+.gate__peek img{width:66px; height:88px; object-fit:cover; border-radius:14px; margin:0 -8px;
+  border:2px solid rgba(255,255,255,.14); box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.gate__peek img:nth-child(1){transform:rotate(-8deg)}
+.gate__peek img:nth-child(2){width:74px; height:98px; z-index:2; position:relative}
+.gate__peek img:nth-child(3){transform:rotate(8deg)}
+.gate__btn{margin-top:10px; display:inline-flex; align-items:center; justify-content:center; gap:11px; width:100%; padding:14px 22px; border-radius:15px;
   font-family:inherit; font-size:15px; font-weight:600; color:#1a1e25; background:var(--ink);
   transition:transform .25s var(--ease), box-shadow .25s}
 .gate__btn:hover{transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.gate__btn:active{transform:translateY(0) scale(.98)}
 .gate__btn:disabled{opacity:.6}
 .gate__btn svg{background:#fff; border-radius:50%; padding:2px; box-sizing:content-box}
+.gate__demo{font-size:13px; color:var(--ink-soft); text-decoration:none; padding:2px 8px; border-radius:999px; transition:color .2s, background .2s}
+.gate__demo:hover{color:var(--ink); background:rgba(255,255,255,.08)}
 .gate__fine{margin:2px 0 0; font-size:11.5px; color:var(--ink-dim)}
 .gate__err{margin:6px 0 0; font-size:12px; line-height:1.4; color:#e6917f; max-width:280px}
 

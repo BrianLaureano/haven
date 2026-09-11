@@ -28,7 +28,7 @@
   <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=53" />
+  <link rel="stylesheet" href="styles.css?v=54" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -461,32 +461,44 @@
   <!-- ===================== ENTRAR (gate) ===================== -->
   <div class="gate" data-gate hidden>
     <div class="gate__card glass">
-      <div class="gate__mark">Haven</div>
-      <p class="gate__tag">seu cantinho — clima, som, sua cidade e o que você curte, num lugar só.</p>
+      <div class="gate__brand">
+        <span class="gate__logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="26" height="26"><path d="M6 21c4-8 16-8 20 0" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>
+        </span>
+        <span class="gate__mark">Haven</span>
+      </div>
+      <h1 class="gate__head">Seu cantinho na internet.</h1>
+      <p class="gate__tag">Som, cidade, filmes e o que você curte — reunidos num link só, do seu jeito, pra colar na bio.</p>
+      <div class="gate__peek" aria-hidden="true">
+        <img src="assets/demo/coffee.jpg" alt="" loading="lazy" />
+        <img src="assets/demo/masp.jpg" alt="" loading="lazy" />
+        <img src="assets/demo/g2.jpg" alt="" loading="lazy" />
+      </div>
       <button class="gate__btn" data-gate-signin type="button">
         <svg viewBox="0 0 24 24" width="19" height="19"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C17.3 2.9 14.9 1.9 12 1.9 6.8 1.9 2.6 6.1 2.6 12S6.8 22.1 12 22.1c6 0 9.9-4.2 9.9-10.1 0-.7-.1-1.2-.2-1.8H12z"/></svg>
         Entrar com Google
       </button>
-      <p class="gate__fine">seu ambiente fica salvo na sua conta.</p>
+      <a class="gate__demo" href="?demo=1&local=1&mock=1&u=local">ver um exemplo ↗</a>
+      <p class="gate__fine">grátis · seu ambiente fica salvo na sua conta.</p>
       <p class="gate__err" data-gate-err hidden></p>
     </div>
   </div>
 
-  <script src="firebase-config.js?v=53"></script>
+  <script src="firebase-config.js?v=54"></script>
   <!-- ?mock=1 ou ?demo=1 → amostra de Música (capas reais via iTunes) pro player rico sem backend -->
-  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=53"><\/script>');</script>
+  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=54"><\/script>');</script>
   <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
-  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=53"><\/script>');</script>
-  <script src="spotify.js?v=53"></script>
-  <script src="haven-db.js?v=53"></script>
-  <script src="main.js?v=53"></script>
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=54"><\/script>');</script>
+  <script src="spotify.js?v=54"></script>
+  <script src="haven-db.js?v=54"></script>
+  <script src="main.js?v=54"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=53"></script>
-  <script src="catalog.js?v=53"></script>
-  <script src="share.js?v=53"></script>
-  <script src="wallpaper.js?v=53"></script>
-  <script src="home.js?v=53"></script>
-  <script src="auth.js?v=53"></script>
+  <script src="map.js?v=54"></script>
+  <script src="catalog.js?v=54"></script>
+  <script src="share.js?v=54"></script>
+  <script src="wallpaper.js?v=54"></script>
+  <script src="home.js?v=54"></script>
+  <script src="auth.js?v=54"></script>
   <script>
     if ('serviceWorker' in navigator){
       // se um SW novo assumir o controle (deploy novo), recarrega 1x pra pegar o conjunto

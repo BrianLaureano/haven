@@ -23,6 +23,12 @@
     game:  { label: 'Jogos', emoji:'🎮', icon:SVG.game, ph: 'Buscar jogos…', needs: 'rawg',
       status: [['want','Quero jogar'],['doing','Jogando'],['done','Zerado']] }
   };
+  // sugestões pra começar (empty state) — 1 toque busca e mostra pra salvar
+  const SUGGEST = {
+    movie: ['Interestelar', 'Parasita', 'Cidade de Deus'],
+    book:  ['O Nome do Vento', 'Duna', '1984'],
+    game:  ['Elden Ring', 'Hollow Knight', 'Hades']
+  };
   // paleta on-brand (fica bonita sobre o vidro escuro do Haven)
   const PALETTE = ['#e6a4c4','#8fb8e8','#8fd8b0','#c9a8f0','#f0b48a','#ecd58a','#7fb0a0','#e88a8a'];
 
@@ -192,9 +198,18 @@
         if (isOwner()) grid.appendChild(addCard());
         else bodyEl.insertAdjacentHTML('beforeend', `<div class="cempty"><b>nada aqui ainda</b></div>`);
         bodyEl.appendChild(grid);
+      } else if (isOwner()) {
+        const chips = (SUGGEST[type] || []).map(s => `<button class="cempty__chip" type="button">${s}</button>`).join('');
+        bodyEl.innerHTML = `<div class="cempty cempty--rich">
+          <span class="cempty__ico">${TYPES[type].icon}</span>
+          <b>Comece sua coleção de ${TYPES[type].label.toLowerCase()}</b>
+          <span>Busque acima e toque em ★ pra salvar. Que tal começar por:</span>
+          <div class="cempty__chips">${chips}</div></div>`;
+        $$('.cempty__chip', bodyEl).forEach(c => c.addEventListener('click', () => {
+          searchEl.value = c.textContent; clearEl.hidden = false; searchEl.focus(); runSearch();
+        }));
       } else {
-        bodyEl.innerHTML = `<div class="cempty"><b>Seus ${TYPES[type].label.toLowerCase()} aparecem aqui</b>
-          <span>Busque acima e salve o que você curte.</span></div>`;
+        bodyEl.innerHTML = `<div class="cempty cempty--rich"><span class="cempty__ico">${TYPES[type].icon}</span><b>Nada por aqui ainda</b></div>`;
       }
       bindCatEdit(); return;
     }
