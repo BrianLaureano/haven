@@ -1108,7 +1108,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=58'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=59'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1289,9 +1289,36 @@
         cats: pcats.map(c=>({ key:c.key, label:c.label, emoji:c.emoji, color:c.color, cover:c.cover||'' })), catItems,
         places:(pl||[]).map(x=>({cat:x.cat})), memories:mem, at:Date.now()
       });
+      const titles = (cc.movie?.length||0)+(cc.book?.length||0)+(cc.game?.length||0);
+      const ready = (!!avatar || !!cover) && (prof.bio||'').trim().length >= 8 && (titles + (pl||[]).length) >= 3;
+      checkMilestone(ready);
     } catch {}
   }
   window.HavenPublish = publish;
+
+  /* ---------- marco "Haven pronto" (celebra ao completar pela 1ª vez) ---------- */
+  let mSeen = false;   // 1º publish do load = baseline (sem festa em carga passiva)
+  function checkMilestone(ready){
+    if (VISIT || !isOwner()) return;
+    let done = false; try { done = localStorage.getItem('haven.ready') === '1'; } catch {}
+    if (!mSeen){ mSeen = true; if (ready && !done){ try { localStorage.setItem('haven.ready', '1'); } catch {} } return; }
+    if (ready && !done){ try { localStorage.setItem('haven.ready', '1'); } catch {} window.HavenFX?.reward({ big: true }); showReadyPrompt(); }
+  }
+  function showReadyPrompt(){
+    if (document.querySelector('.ready')) return;
+    const el = document.createElement('div'); el.className = 'ready';
+    el.innerHTML = `<div class="ready__card glass">
+      <div class="ready__spark">✨</div>
+      <b class="ready__t">Seu Haven tá pronto!</b>
+      <p class="ready__s">Cola o link na sua bio e deixa a galera te conhecer.</p>
+      <button class="btn btn--go ready__go" type="button">Compartilhar meu link</button>
+      <button class="ready__later" type="button">agora não</button>
+    </div>`;
+    document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('is-on'));
+    const close = () => { el.classList.remove('is-on'); setTimeout(() => el.remove(), 300); };
+    el.querySelector('.ready__go').onclick = () => { close(); shareSheet(); };
+    el.querySelector('.ready__later').onclick = close;
+  }
   // catalog chama isso ao criar/editar categoria ou item → Home reflete na hora
   window.HavenHome = { reload: async () => { if (VISIT) return; try { await loadOwner(); } catch {} render(); } };
 

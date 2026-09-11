@@ -1687,6 +1687,21 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .lsheet__native{margin-top:2px; background:none; border:0; color:var(--ink-soft); font-family:inherit; font-size:13px; cursor:pointer; padding:6px}
 .lsheet__native:hover{color:var(--ink)}
 
+/* ---------- marco "Haven pronto" ---------- */
+.ready{position:fixed; inset:0; z-index:91; display:grid; place-items:center; padding:24px; opacity:0; pointer-events:none;
+  transition:opacity .3s var(--ease); background:rgba(6,8,12,.55); backdrop-filter:blur(8px)}
+.ready.is-on{opacity:1; pointer-events:auto}
+.ready__card{width:100%; max-width:332px; padding:30px 26px 24px; border-radius:28px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:11px; transform:translateY(16px) scale(.97); transition:transform .42s var(--spring)}
+.ready.is-on .ready__card{transform:none}
+.ready__spark{font-size:44px; animation:readySpark 1.2s var(--spring)}
+@keyframes readySpark{0%{transform:scale(0) rotate(-25deg)} 60%{transform:scale(1.22) rotate(8deg)} 100%{transform:scale(1) rotate(0)}}
+.ready__t{font-size:25px; font-weight:600; letter-spacing:-.01em; color:var(--ink)}
+.ready__s{font-size:14px; line-height:1.5; color:var(--ink-soft); max-width:272px; margin:0}
+.ready__go{width:100%; justify-content:center; padding:14px; margin-top:4px}
+.ready__later{background:none; border:0; color:var(--ink-dim); font-family:inherit; font-size:13px; cursor:pointer; padding:6px}
+.ready__later:hover{color:var(--ink-soft)}
+
 /* ---------- visitante (perfil público) ---------- */
 /* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
    ferramentas do dono (trocar cena, compartilhar meu momento). */
