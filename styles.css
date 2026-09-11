@@ -1599,6 +1599,33 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .gate__fine{margin:2px 0 0; font-size:11.5px; color:var(--ink-dim)}
 .gate__err{margin:6px 0 0; font-size:12px; line-height:1.4; color:#e6917f; max-width:280px}
 
+/* ============ micro-interações (tátil, calmo, caprichado) ============ */
+:root{ --spring: cubic-bezier(.34,1.35,.5,1); }
+/* toque tátil: pressiona e volta com uma mola sutil (não cartunesco) */
+.btn, .bill__play, .map__add, .map__act, .src__b, .ctab, .map__mode button,
+.map__styles button, .map__filter button, .weather, .gate__demo{
+  transition: transform .18s var(--spring), background .22s var(--ease),
+              box-shadow .22s var(--ease), color .22s var(--ease);
+}
+.btn:active, .bill__play:active, .map__add:active, .map__act:active, .src__b:active,
+.ctab:active, .map__mode button:active, .map__styles button:active,
+.map__filter button:active, .weather:active{ transform: scale(.955); }
+.btn--go:active, .bill__play:active{ box-shadow:0 2px 8px rgba(0,0,0,.22) }
+/* toque nos cards da coleção (mobile não tem hover) */
+.ccard:active .ccard__art{ transform: translateY(-2px) scale(.99); transition: transform .16s var(--spring) }
+/* pop de "chegou" quando uma aba/toggle fica ativa (staging + follow-through) */
+@keyframes tabPop{ 0%{transform:scale(.94)} 55%{transform:scale(1.04)} 100%{transform:scale(1)} }
+@media (prefers-reduced-motion:no-preference){
+  .src__b.is-on, .ctab.is-on, .dock__i.is-on,
+  .map__mode button.is-on, .map__styles button.is-on{ animation: tabPop .3s var(--spring); }
+}
+@media (prefers-reduced-motion:reduce){
+  .btn, .bill__play, .map__add, .map__act, .src__b, .ctab, .map__mode button,
+  .map__styles button, .map__filter button, .weather{ transition:background .2s, color .2s }
+  .btn:active, .src__b:active, .ctab:active, .map__mode button:active,
+  .map__styles button:active, .bill__play:active, .map__add:active, .ccard:active .ccard__art{ transform:none }
+}
+
 /* ---------- visitante (perfil público) ---------- */
 /* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
    ferramentas do dono (trocar cena, compartilhar meu momento). */
