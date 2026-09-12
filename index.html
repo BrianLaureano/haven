@@ -28,7 +28,7 @@
   <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=62" />
+  <link rel="stylesheet" href="styles.css?v=63" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -191,8 +191,8 @@
     <section class="view" data-view="catalog" hidden>
       <header class="ctop">
         <div class="ctop__title">
-          <span class="ctop__eyebrow">o que você curte</span>
-          <h2>Coleção</h2>
+          <span class="ctop__eyebrow">o que te move</span>
+          <h2>Hobbies</h2>
         </div>
         <div class="ctabs glass" role="tablist" aria-label="Tipo" data-ctabs></div>
       </header>
@@ -385,9 +385,9 @@
         <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
         <span class="dock__lbl">Música</span>
       </button>
-      <button class="dock__i" data-nav="catalog" aria-label="Coleção">
+      <button class="dock__i" data-nav="catalog" aria-label="Hobbies">
         <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l8-3 8 3-8 3-8-3Z"/><path d="M4 12l8 3 8-3"/><path d="M4 17l8 3 8-3"/></svg>
-        <span class="dock__lbl">Coleção</span>
+        <span class="dock__lbl">Hobbies</span>
       </button>
       <span class="dock__sep" aria-hidden="true"></span>
       <button class="dock__i" data-scene-btn aria-label="Trocar cena">
@@ -488,21 +488,21 @@
     </div>
   </div>
 
-  <script src="firebase-config.js?v=62"></script>
+  <script src="firebase-config.js?v=63"></script>
   <!-- ?mock=1 ou ?demo=1 → amostra de Música (capas reais via iTunes) pro player rico sem backend -->
-  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=62"><\/script>');</script>
+  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=63"><\/script>');</script>
   <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
-  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=62"><\/script>');</script>
-  <script src="spotify.js?v=62"></script>
-  <script src="haven-db.js?v=62"></script>
-  <script src="main.js?v=62"></script>
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=63"><\/script>');</script>
+  <script src="spotify.js?v=63"></script>
+  <script src="haven-db.js?v=63"></script>
+  <script src="main.js?v=63"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=62"></script>
-  <script src="catalog.js?v=62"></script>
-  <script src="share.js?v=62"></script>
-  <script src="wallpaper.js?v=62"></script>
-  <script src="home.js?v=62"></script>
-  <script src="auth.js?v=62"></script>
+  <script src="map.js?v=63"></script>
+  <script src="catalog.js?v=63"></script>
+  <script src="share.js?v=63"></script>
+  <script src="wallpaper.js?v=63"></script>
+  <script src="home.js?v=63"></script>
+  <script src="auth.js?v=63"></script>
   <script>
     if ('serviceWorker' in navigator){
       // se um SW novo assumir o controle (deploy novo), recarrega 1x pra pegar o conjunto

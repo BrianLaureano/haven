@@ -261,7 +261,7 @@
     const items = (col[key] || []).filter(i => i.poster || i.title);
     const cover = def.cover ? `<div class="cat-cover" style="background-image:url('${esc(def.cover)}')"><b>${def.emoji||''} ${esc(def.label)}</b></div>` : '';
     const head = def.cover ? '' : `<div class="shelf__head"><span class="shelf__title"><span class="shelf__dot"></span>${def.emoji||''} ${esc(def.label)}</span>${items.length?`<span class="shelf__meta">${items.length}</span>`:''}</div>`;
-    if (!items.length){ c.innerHTML = cover + head + `<div class="shelf__empty">${isOwner()?'adicione itens na Coleção':'—'}</div>`; return; }
+    if (!items.length){ c.innerHTML = cover + head + `<div class="shelf__empty">${isOwner()?'adicione itens nos Hobbies':'—'}</div>`; return; }
     const sorted = [...items].sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).slice(0,12);
     c.innerHTML = cover + head + (v === 1 ? shelfGrid(sorted) : `<div class="shelf__row">${sorted.map(catCard).join('')}</div>`);
   }
@@ -452,7 +452,7 @@
       const all = [...(col.movie||[]), ...(col.book||[]), ...(col.game||[])].filter(i => i.poster && i.rating)
         .sort((a,b) => (b.rating||0)-(a.rating||0) || (b.addedAt||0)-(a.addedAt||0));
       const top = all[0];
-      if (!top){ c.innerHTML = `<span class="hi__label">Top do mês</span><div class="w-empty">${isOwner()?'avalie itens na Coleção':'—'}</div>`; return; }
+      if (!top){ c.innerHTML = `<span class="hi__label">Top do mês</span><div class="w-empty">${isOwner()?'avalie itens nos Hobbies':'—'}</div>`; return; }
       c.classList.add('card--cover');
       c.innerHTML = `<div class="pin__img" style="background-image:url('${esc(top.poster)}')"><span class="topmes__tag">★ TOP DO MÊS</span></div><div class="pin__body"><b>${esc(top.title)}</b><span>${'★'.repeat(top.rating)}</span></div>`;
     }},
@@ -626,7 +626,7 @@
         <span class="bill__tag">Em destaque · ${kind}</span>
         <b class="bill__title">${esc(it.title)}</b>
         ${it.rating ? `<span class="bill__stars">${'★'.repeat(it.rating)}<i>${'★'.repeat(5-it.rating)}</i></span>` : ''}
-        <button class="bill__play"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> ver na coleção</button>
+        <button class="bill__play"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> ver</button>
       </div>`;
     setBillBg(c.querySelector('[data-bill-bg]'), it);
     c.addEventListener('click', () => window.HavenGo?.('catalog'));
@@ -1108,7 +1108,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=62'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=63'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1285,7 +1285,8 @@
         accent:prof.accent||'', moment:prof.moment||{}, socials:prof.socials||{}, theme:prof.theme||'',
         quote:prof.quote||'', counter:prof.counter||{}, status:prof.status||{}, pin:pinPub, gallery:galPub, links:prof.links||[], video:prof.video||'', week:prof.week||{},
         layout:prof.layout||{}, blocks:prof.blocks||{},
-        col:{ movie:trim(cc.movie), book:trim(cc.book), game:trim(cc.game) },
+        col:{ movie:trim(cc.movie), book:trim(cc.book), game:trim(cc.game),
+          show:(cc.show||[]).slice(0,12).map(s=>({title:s.title,poster:s.poster,date:s.date,local:s.local,link:s.link,type:'show'})) },
         cats: pcats.map(c=>({ key:c.key, label:c.label, emoji:c.emoji, color:c.color, cover:c.cover||'' })), catItems,
         places:(pl||[]).map(x=>({cat:x.cat})), memories:mem, at:Date.now()
       });
@@ -1360,7 +1361,7 @@
       const nm = $('.hello__name'); if (nm) nm.textContent = (snap.name||'Haven').split(' ')[0];
       const cn = $('[data-visit-name]'); if (cn) cn.textContent = who;
       const ey = $('.map__eyebrow'); if (ey) ey.textContent = 'A cidade de ' + who;
-      const ce = $('.ctop__eyebrow'); if (ce) ce.textContent = 'o que ' + who + ' curte';
+      const ce = $('.ctop__eyebrow'); if (ce) ce.textContent = 'o que move ' + who;
     } else {
       profile = { widgets: [], bio:'', instagram:'', playlist:'' };
       hi.innerHTML = `<div class="w-empty" style="text-align:center">Esse Haven não existe ou é privado.</div>`;

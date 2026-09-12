@@ -13,6 +13,7 @@
   const game = id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`;
   const hero = id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_hero.jpg`;   // arte landscape (billboard)
   const now = Date.now();
+  const fut = d => new Date(now + d * 86400000).toISOString().slice(0, 10);   // data futura YYYY-MM-DD
   const it = (type, slug, title, poster, rating, sub, backdrop) => ({ id: type + ':' + slug, title, poster, rating, sub, addedAt: now - Math.random() * 1e9, type, backdrop });
 
   const profileObj = {
@@ -66,6 +67,11 @@
       it('game','hades','Hades', game(1145360), 5, 'Supergiant', hero(1145360)),
       it('game','hollow-knight','Hollow Knight', game(367520), 5, 'Team Cherry', hero(367520)),
       it('game','rdr2','Red Dead Redemption 2', game(1174180), 5, 'Rockstar', hero(1174180))
+    ],
+    show: [
+      { id:'show:d1', type:'show', title:'Tame Impala', date: fut(19), local:'Allianz Parque', poster:'assets/demo/g2.jpg', link:'', addedAt: now-1e7 },
+      { id:'show:d2', type:'show', title:'Lollapalooza BR', date: fut(52), local:'Autódromo de Interlagos', poster:'assets/demo/cover.jpg', link:'', addedAt: now-2e7 },
+      { id:'show:d3', type:'show', title:'Coffee & Vinyl (feira)', date: fut(6), local:'Vila Madalena', poster:'assets/demo/coffee.jpg', link:'', addedAt: now-3e7 }
     ],
     $cats: []
   };

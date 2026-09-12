@@ -13,7 +13,8 @@
   const SVG = {
     movie: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 4v16M16 4v16M3 9h5M3 15h5M16 9h5M16 15h5"/></svg>`,
     book:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.4 7.9 5 4.5 5v13c3.4 0 5.9.4 7.5 1.6 1.6-1.2 4.1-1.6 7.5-1.6V5c-3.4 0-5.9.4-7.5 1.6Z"/><path d="M12 6.6V19"/></svg>`,
-    game:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.5v3M5.5 12h3"/><circle cx="15.5" cy="11" r="1.05"/><circle cx="18" cy="13.5" r="1.05"/><path d="M8.5 7h6a5.5 5.5 0 0 1 5.4 6.5l-.3 1.6A2.6 2.6 0 0 1 14.7 15l-.5-.6a2 2 0 0 0-1.5-.7h-1.4a2 2 0 0 0-1.5.7l-.5.6a2.6 2.6 0 0 1-4.6-.9l-.3-1.6A5.5 5.5 0 0 1 8.5 7Z"/></svg>`
+    game:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.5v3M5.5 12h3"/><circle cx="15.5" cy="11" r="1.05"/><circle cx="18" cy="13.5" r="1.05"/><path d="M8.5 7h6a5.5 5.5 0 0 1 5.4 6.5l-.3 1.6A2.6 2.6 0 0 1 14.7 15l-.5-.6a2 2 0 0 0-1.5-.7h-1.4a2 2 0 0 0-1.5.7l-.5.6a2.6 2.6 0 0 1-4.6-.9l-.3-1.6A5.5 5.5 0 0 1 8.5 7Z"/></svg>`,
+    show:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/><path d="M15 6v12" stroke-dasharray="1.5 3"/></svg>`
   };
   const TYPES = {
     movie: { label: 'Filmes', emoji:'🎬', icon:SVG.movie, ph: 'Buscar filmes…', needs: 'tmdb',
@@ -21,7 +22,8 @@
     book:  { label: 'Livros', emoji:'📖', icon:SVG.book, ph: 'Buscar livros…', needs: null,
       status: [['want','Quero ler'],['doing','Lendo'],['done','Lido']] },
     game:  { label: 'Jogos', emoji:'🎮', icon:SVG.game, ph: 'Buscar jogos…', needs: 'rawg',
-      status: [['want','Quero jogar'],['doing','Jogando'],['done','Zerado']] }
+      status: [['want','Quero jogar'],['doing','Jogando'],['done','Zerado']] },
+    show:  { label: 'Shows', emoji:'🎫', icon:SVG.show, ph: '', needs: null, manual: true }
   };
   // sugestões pra começar (empty state) — 1 toque busca e mostra pra salvar
   const SUGGEST = {
@@ -38,7 +40,7 @@
   const isOwner = () => !VISIT && !!window.HavenDB?.user;
 
   /* ---------- storage ---------- */
-  let col = { movie: [], book: [], game: [] };   // itens por chave (built-in + custom)
+  let col = { movie: [], book: [], game: [], show: [] };   // itens por chave (built-in + custom)
   let cats = [];                                  // categorias custom [{key,label,emoji,color}]
   function persist(){ col.$cats = cats; window.HavenDB?.setDoc('collection', col); window.HavenHome?.reload?.(); }
 
@@ -105,7 +107,7 @@
       b.addEventListener('click', () => setType(key));
       tabsEl.appendChild(b);
     };
-    ['movie','book','game'].forEach(k => mk(k, TYPES[k].label, `<span class="ctab__ic ctab__ic--svg">${TYPES[k].icon}</span>`, ''));
+    ['movie','book','game','show'].forEach(k => mk(k, TYPES[k].label, `<span class="ctab__ic ctab__ic--svg">${TYPES[k].icon}</span>`, ''));
     cats.forEach(c => mk(c.key, c.label, c.emoji ? `<span class="ctab__ic">${c.emoji}</span>` : '', c.color));
     if (isOwner()){
       const add = document.createElement('button');
@@ -118,9 +120,9 @@
     if (key === type) return;
     type = key;
     renderTabs();
-    csWrap.hidden = isCustom(type);
+    csWrap.hidden = isCustom(type) || !!TYPES[type]?.manual;
     searchEl.value = ''; clearEl.hidden = true;
-    if (!isCustom(type)) searchEl.placeholder = TYPES[type].ph;
+    if (!isCustom(type) && !TYPES[type]?.manual) searchEl.placeholder = TYPES[type].ph;
     renderCollection();
   }
 
@@ -156,7 +158,7 @@
       `<span class="chero__bg" style="background-image:url('${cand.poster}')"></span><span class="chero__scrim"></span>` +
       `<div class="chero__in"><span class="chero__eyebrow">Em destaque · ${esc(kind)}</span>` +
       `<div class="chero__t">${esc(cand.title)}</div>` +
-      `<div class="chero__meta">${stars}<span class="chero__go">ver na coleção</span></div></div>`;
+      `<div class="chero__meta">${stars}<span class="chero__go">ver</span></div></div>`;
     el.addEventListener('click', () => openItem(cand, cand));
     return el;
   }
@@ -187,8 +189,117 @@
       <span class="crow__n">${n || ''}</span>${edit}</div>`;
   }
 
+  /* ============================================================
+     SHOWS (hobby): "meus shows" (o que eu vou) + "próximos na cidade" (API)
+     ============================================================ */
+  const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  function showDate(d){
+    if (!d) return { label:'', rel:'', past:false, ts: 8e15 };
+    const dt = new Date(d + 'T00:00:00'); if (isNaN(dt)) return { label:d, rel:'', past:false, ts: 8e15 };
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = Math.round((dt - today) / 86400000);
+    const label = dt.getDate() + ' ' + MESES[dt.getMonth()] + (dt.getFullYear() !== today.getFullYear() ? ' ' + dt.getFullYear() : '');
+    let rel = ''; if (days === 0) rel = 'hoje'; else if (days === 1) rel = 'amanhã'; else if (days > 1 && days <= 30) rel = 'em ' + days + ' dias'; else if (days < 0) rel = 'já rolou';
+    return { label, rel, past: days < 0, ts: dt.getTime() };
+  }
+  const uidShow = () => 'show:' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  function showCard(it, editable){
+    const dt = showDate(it.date);
+    const el = document.createElement('button'); el.className = 'ccard scard' + (dt.past ? ' scard--past' : ''); el.type = 'button';
+    el.innerHTML =
+      `<span class="ccard__art scard__art">${posterHTML(it.poster, it.title)}<span class="scard__grad"></span>` +
+        (dt.label ? `<span class="scard__date"><b>${esc(dt.label)}</b>${dt.rel ? `<i>${esc(dt.rel)}</i>` : ''}</span>` : '') + `</span>` +
+      `<span class="ccard__t">${esc(it.title || 'Show')}</span>` +
+      (it.local ? `<span class="ccard__s">${esc(it.local)}</span>` : '');
+    el.addEventListener('click', () => { if (editable) openShow(it); else if (it.link) window.open(it.link, '_blank', 'noopener'); });
+    return el;
+  }
+  function addShowCard(){
+    const el = document.createElement('button'); el.className = 'ccard ccard--add'; el.type = 'button';
+    el.innerHTML = `<span class="ccard__art" style="border-color:var(--accent)"><span class="poster__ph" style="font-size:40px">+</span></span><span class="ccard__t">Adicionar show</span>`;
+    el.addEventListener('click', () => openShow(null));
+    return el;
+  }
+  function renderShows(){
+    const list = (col.show || []).slice().sort((a, b) => showDate(a.date).ts - showDate(b.date).ts);
+    bodyEl.innerHTML = '';
+    const head = document.createElement('div'); head.className = 'crow'; head.style.setProperty('--cc', 'var(--accent)');
+    head.innerHTML = `<span class="crow__label"><span class="crow__dot"></span>Meus shows</span><span class="crow__n">${list.length || ''}</span>`;
+    bodyEl.appendChild(head);
+    if (!list.length && !isOwner()){
+      bodyEl.insertAdjacentHTML('beforeend', `<div class="cempty cempty--rich"><span class="cempty__ico">${TYPES.show.icon}</span><b>Nenhum show ainda</b></div>`);
+    } else {
+      const grid = document.createElement('div'); grid.className = 'cgrid';
+      if (isOwner()) grid.appendChild(addShowCard());
+      list.forEach(it => grid.appendChild(showCard(it, isOwner())));
+      bodyEl.appendChild(grid);
+    }
+    renderCityShows();
+  }
+  function cityName(){ return ($('[data-city]')?.textContent || 'São Paulo').trim() || 'São Paulo'; }
+  async function renderCityShows(){
+    const row = document.createElement('div'); row.className = 'crow'; row.style.setProperty('--cc', 'var(--accent)'); row.style.marginTop = '22px';
+    row.innerHTML = `<span class="crow__label"><span class="crow__dot"></span>Próximos na sua cidade</span>`;
+    bodyEl.appendChild(row);
+    const host = document.createElement('div'); host.className = 'cgrid'; host.innerHTML = skelGrid(3); bodyEl.appendChild(host);
+    let items = [];
+    try {
+      if (FN()){
+        const j = await fetch(`${FN()}/cityShows?city=${encodeURIComponent(cityName())}`).then(r => r.ok ? r.json() : { items: [] }).catch(() => ({ items: [] }));
+        items = j.items || [];
+      }
+    } catch (_) {}
+    if (!items.length){
+      host.outerHTML = `<div class="cempty cempty--rich"><span class="cempty__ico">${TYPES.show.icon}</span><b>Shows da sua cidade</b><span>${FN() ? 'nada por perto agora — volta depois ✨' : 'em breve: a agenda de shows perto de você'}</span></div>`;
+      return;
+    }
+    host.innerHTML = '';
+    items.slice(0, 12).forEach(it => host.appendChild(showCard({ title: it.title, date: it.date, local: it.venue || it.local, poster: it.poster, link: it.url }, false)));
+  }
+  function openShow(existing){
+    const it = existing ? { ...existing } : { id: uidShow(), addedAt: Date.now(), type: 'show' };
+    let posterId = it.posterId || null, posterUrl = it.poster || '';
+    document.querySelector('.showform')?.remove();
+    const el = document.createElement('div'); el.className = 'showform';
+    el.innerHTML = `<div class="showform__scrim" data-x></div>
+      <div class="showform__card glass">
+        <button class="showform__x" data-x aria-label="Fechar">✕</button>
+        <h3 class="showform__t">${existing ? 'Editar show' : 'Novo show'}</h3>
+        <button class="showform__img" data-img type="button"><span data-imgprev></span></button>
+        <input class="showform__in" data-name maxlength="80" placeholder="Artista / evento" />
+        <div class="showform__row"><input class="showform__in" data-date type="date" /><input class="showform__in" data-local maxlength="60" placeholder="Local" /></div>
+        <input class="showform__in" data-link placeholder="Link do ingresso (opcional)" inputmode="url" />
+        <div class="showform__acts">${existing ? '<button class="btn btn--del" data-del type="button">excluir</button>' : ''}<button class="btn btn--go" data-save type="button">Salvar</button></div>
+      </div>`;
+    document.body.appendChild(el);
+    const q = s => el.querySelector(s);
+    q('[data-name]').value = it.title || ''; q('[data-date]').value = it.date || ''; q('[data-local]').value = it.local || ''; q('[data-link]').value = it.link || '';
+    const paint = () => { q('[data-imgprev]').innerHTML = posterUrl ? `<img src="${esc(posterUrl)}" alt=""/>` : `<span class="showform__imgph">${TYPES.show.icon}<i>foto / cartaz</i></span>`; };
+    paint();
+    requestAnimationFrame(() => el.classList.add('is-on'));
+    const close = () => { el.classList.remove('is-on'); setTimeout(() => el.remove(), 240); };
+    el.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', close));
+    q('[data-img]').addEventListener('click', () => {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+      inp.onchange = async () => { const f = inp.files?.[0]; if (!f) return; try { const id = await window.HavenDB?.putPhoto?.(f); if (id){ posterId = id; posterUrl = (await window.HavenDB?.photoURL?.(id)) || posterUrl; paint(); } } catch (_) {} };
+      inp.click();
+    });
+    q('[data-save]').addEventListener('click', () => {
+      it.title = q('[data-name]').value.trim() || 'Show'; it.date = q('[data-date]').value;
+      it.local = q('[data-local]').value.trim(); it.link = q('[data-link]').value.trim();
+      it.poster = posterUrl; it.posterId = posterId; it.type = 'show';
+      const arr = col.show || (col.show = []);
+      const i = arr.findIndex(x => x.id === it.id); const isNew = i < 0;
+      if (i >= 0) arr[i] = it; else arr.push(it);
+      persist(); window.HavenPublish?.(); close(); renderShows();
+      if (isNew) window.HavenFX?.reward({ label: `${it.title} — no seu rolê ✓` });
+    });
+    q('[data-del]')?.addEventListener('click', () => { col.show = (col.show || []).filter(x => x.id !== it.id); persist(); window.HavenPublish?.(); close(); renderShows(); });
+  }
+
   function renderCollection(){
     results = null;
+    if (type === 'show') return renderShows();
     if (!isCustom(type) && !keyFor(type)) return renderSoon();
     const list = col[type] || [];
     const color = catColor(type);
@@ -215,7 +326,7 @@
       bindCatEdit(); return;
     }
     bodyEl.innerHTML = catHeader() || `<div class="crow"><span class="crow__label">Meus ${TYPES[type].label.toLowerCase()}</span><span class="crow__n">${list.length}</span></div>`;
-    if (list.length >= 3){ const hero = cHero(list, color, (TYPES[type]?.label) || catDef(type)?.label || 'Coleção'); if (hero) bodyEl.appendChild(hero); }
+    if (list.length >= 3){ const hero = cHero(list, color, (TYPES[type]?.label) || catDef(type)?.label || 'Hobbies'); if (hero) bodyEl.appendChild(hero); }
     const grid = document.createElement('div'); grid.className = 'cgrid';
     if (isCustom(type) && isOwner()) grid.appendChild(addCard());
     [...list].sort((a, b) => b.addedAt - a.addedAt).forEach(it => grid.appendChild(itemCard(it, it, color)));
@@ -351,7 +462,7 @@
     persist(); window.HavenPublish?.(); closeItem();
     if (type === current.type && !searchEl.value) renderCollection();
     else if (results) renderResults(results);
-    if (isNew) window.HavenFX?.reward({ label: `${current.title || 'Título'} entrou na sua coleção ✓` });
+    if (isNew) window.HavenFX?.reward({ label: `${current.title || 'Título'} — salvo ✓` });
   });
   btnDel.addEventListener('click', () => {
     const arr = col[current.type] || [];
@@ -439,7 +550,8 @@
     }
   }
   async function load(){
-    col = (await window.HavenDB?.getDoc('collection')) || { movie: [], book: [], game: [] };
+    col = (await window.HavenDB?.getDoc('collection')) || { movie: [], book: [], game: [], show: [] };
+    if (!Array.isArray(col.show)) col.show = [];
     cats = Array.isArray(col.$cats) ? col.$cats : [];
     await resolvePosters();
   }

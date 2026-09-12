@@ -3,7 +3,7 @@
    HTML = network-first (pega updates); estáticos = cache-first
    (assets são versionados com ?v=N, então URL nova = conteúdo novo).
    Só intercepta a MESMA origem — Firebase/TMDB/IGDB/fontes vão direto pra rede. */
-const CACHE = 'haven-shell-v41';
+const CACHE = 'haven-shell-v42';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'assets/icon-192.png', 'assets/scenes/dawn.webp'];
 
 self.addEventListener('install', e => {
