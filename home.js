@@ -1108,7 +1108,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=63'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=64'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1133,6 +1133,7 @@
       document.body.appendChild(el);
       const closeIt = () => el.classList.remove('is-on');
       el.querySelectorAll('[data-lsheet-close]').forEach(b => b.addEventListener('click', closeIt));
+      window.HavenSheet?.grab(el.querySelector('.lsheet__card'), closeIt);
       el.querySelector('[data-lsheet-copy]').addEventListener('click', async () => {
         const u = el.dataset.url || '';
         try { await navigator.clipboard.writeText(u); } catch { window.prompt('Copie seu link do Haven:', u); }
@@ -1231,6 +1232,7 @@
     });
     $$('[data-onb-wall]').addEventListener('click', () => window.HavenWallpaper?.open?.());
     const done = () => { try { localStorage.setItem(ONB_KEY, '1'); } catch(_){} el.classList.remove('is-on'); setTimeout(()=>el.remove(), 240); };
+    window.HavenSheet?.grab(el.querySelector('.onb__card'), () => { save(); done(); });
     $$('[data-onb-skip]').addEventListener('click', () => { save(); done(); });
     $$('[data-onb-go]').addEventListener('click', () => {
       profile.bio = $$('[data-onb-bio]').value.trim();
@@ -1319,6 +1321,7 @@
     const close = () => { el.classList.remove('is-on'); setTimeout(() => el.remove(), 300); };
     el.querySelector('.ready__go').onclick = () => { close(); shareSheet(); };
     el.querySelector('.ready__later').onclick = close;
+    window.HavenSheet?.grab(el.querySelector('.ready__card'), close);
   }
   // catalog chama isso ao criar/editar categoria ou item → Home reflete na hora
   window.HavenHome = { reload: async () => { if (VISIT) return; try { await loadOwner(); } catch {} render(); } };

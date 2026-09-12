@@ -75,6 +75,48 @@
   window.HavenFX = FX;
   window.HavenToast = FX.toast;
 
+  /* ============================================================
+     Sheets: arrastar pra baixo pra fechar (app-native) + Esc.
+     Só inicia o arraste com o conteúdo no topo e o dedo descendo,
+     pra nunca brigar com o scroll interno da sheet.
+     ============================================================ */
+  window.HavenSheet = {
+    grab(card, closeFn){
+      if (!card || card.dataset.grab) return; card.dataset.grab = '1';
+      let startY = 0, dy = 0, drag = false, capable = false, pid = null;
+      card.addEventListener('pointerdown', e => {
+        if (card.scrollTop > 0){ capable = false; return; }
+        capable = true; drag = false; startY = e.clientY; dy = 0; pid = e.pointerId;
+      });
+      card.addEventListener('pointermove', e => {
+        if (!capable || e.pointerId !== pid) return;
+        dy = e.clientY - startY;
+        if (dy > 4 && card.scrollTop <= 0){
+          if (!drag){ drag = true; card.style.transition = 'none'; try { card.setPointerCapture(pid); } catch (_) {} }
+          e.preventDefault();
+          card.style.transform = `translateY(${dy}px)`;
+          card.style.opacity = String(Math.max(.35, 1 - dy / 520));
+        } else if (dy < -2 && !drag){ capable = false; }   // rolando pra cima → deixa scrollar
+      }, { passive: false });
+      const end = () => {
+        if (!capable) return; capable = false;
+        if (!drag) return; drag = false;
+        card.style.transition = ''; card.style.opacity = '';
+        if (dy > 110){ closeFn(); setTimeout(() => { card.style.transform = ''; }, 60); }
+        else card.style.transform = '';
+      };
+      card.addEventListener('pointerup', end);
+      card.addEventListener('pointercancel', end);
+    }
+  };
+  // Esc / tecla volta fecha a sheet/overlay de cima
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const sel = '.showform.is-on [data-x], .lsheet.is-on [data-lsheet-close], .share.is-on [data-share-close], .ready.is-on .ready__later, .onb.is-on [data-onb-skip], .catmk.is-on [data-x], .psheet.is-on [data-sheet-close], .hvlb.is-on .hvlb__x, [data-citem]:not([hidden]) [data-citem-close]';
+    const btns = [...document.querySelectorAll(sel)].filter(b => b.offsetParent !== null);
+    if (btns.length){ e.preventDefault(); btns[btns.length - 1].click(); }
+  });
+
   /* ---------- clock + date + greeting ---------- */
   const elClock = $('[data-clock]');
   const elDate  = $('[data-date]');

@@ -279,6 +279,7 @@
     requestAnimationFrame(() => el.classList.add('is-on'));
     const close = () => { el.classList.remove('is-on'); setTimeout(() => el.remove(), 240); };
     el.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', close));
+    window.HavenSheet?.grab(el.querySelector('.showform__card'), close);
     q('[data-img]').addEventListener('click', () => {
       const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
       inp.onchange = async () => { const f = inp.files?.[0]; if (!f) return; try { const id = await window.HavenDB?.putPhoto?.(f); if (id){ posterId = id; posterUrl = (await window.HavenDB?.photoURL?.(id)) || posterUrl; paint(); } } catch (_) {} };

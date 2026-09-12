@@ -1071,6 +1071,7 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
   padding:22px 22px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:11px;
   transform:translateY(32px); transition:transform .34s var(--spring)}
 .showform.is-on .showform__card{transform:none}
+.showform__card::before{content:''; display:block; width:40px; height:4px; border-radius:99px; background:rgba(255,255,255,.18); margin:-6px auto 12px}
 .showform__x{position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%; border:0; background:rgba(255,255,255,.1); color:var(--ink-soft); font-size:14px; cursor:pointer}
 .showform__t{margin:0 0 2px; font-size:19px; font-weight:600; color:var(--ink)}
 .showform__img{aspect-ratio:16/10; border-radius:16px; border:1px dashed var(--line); background:rgba(255,255,255,.04); overflow:hidden; cursor:pointer; display:grid; place-items:center; color:var(--ink-soft); padding:0}
