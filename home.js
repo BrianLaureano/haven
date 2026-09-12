@@ -353,9 +353,9 @@
       all.sort((a,b) => (b.rating||0) - (a.rating||0));
       shelfCard(c, all.slice(0,8), 'Favoritos', isOwner() ? 'dê 5★ a algo e ele aparece aqui' : '', v);
     }},
-    filmes: { label:'Filmes', open:'catalog', plain:true, variants:2, build(c, v){ shelfCard(c, col.movie||[], 'Filmes', 'seus filmes aparecem aqui', v); }},
-    livros: { label:'Livros', open:'catalog', plain:true, variants:2, build(c, v){ shelfCard(c, col.book||[], 'Livros', 'seus livros aparecem aqui', v); }},
-    jogos:  { label:'Jogos',  open:'catalog', plain:true, variants:2, build(c, v){ shelfCard(c, col.game||[], 'Jogos', 'seus jogos aparecem aqui', v); }},
+    filmes: { label:'Filmes', open:'catalog', plain:true, variants:2, build(c, v){ const s=spotlightItem(); shelfCard(c, (col.movie||[]).filter(i=>i.id!==s?.id), 'Filmes', 'seus filmes aparecem aqui', v); }},
+    livros: { label:'Livros', open:'catalog', plain:true, variants:2, build(c, v){ const s=spotlightItem(); shelfCard(c, (col.book||[]).filter(i=>i.id!==s?.id), 'Livros', 'seus livros aparecem aqui', v); }},
+    jogos:  { label:'Jogos',  open:'catalog', plain:true, variants:2, build(c, v){ const s=spotlightItem(); shelfCard(c, (col.game||[]).filter(i=>i.id!==s?.id), 'Jogos', 'seus jogos aparecem aqui', v); }},
     memories: { label:'Memórias', open:'map', plain:true, variants:2, build(c, v){
       const dots = [...new Set(places.map(p=>p.cat))].slice(0,6).map(k=>`<i style="background:${CAT[k]||CAT.outro}"></i>`).join('');
       const meta = `${places.length} lugares <span class="w-dots">${dots}</span>`;
@@ -674,8 +674,8 @@
     if (isOwner()){
       c.querySelector('.phead__bio').addEventListener('click', () => editField('bio'));
       bindSocials(c);
-      c.querySelector('[data-cover]')?.addEventListener('click', () => pickImage(({id,url}) => { profile.coverId = id; profile.cover = url || profile.cover; save(); render(); }));
-      c.querySelector('[data-ava]')?.addEventListener('click', () => pickImage(({id,url}) => { profile.photoId = id; profile.photo = url || profile.photo; save(); render(); }));
+      c.querySelector('[data-cover]')?.addEventListener('click', () => { if (!editing) return; pickImage(({id,url}) => { profile.coverId = id; profile.cover = url || profile.cover; save(); render(); }); });
+      c.querySelector('[data-ava]')?.addEventListener('click', () => { if (!editing) return; pickImage(({id,url}) => { profile.photoId = id; profile.photo = url || profile.photo; save(); render(); }); });
       c.querySelector('[data-share-link]')?.addEventListener('click', () => shareSheet());
       c.querySelector('[data-share-card]')?.addEventListener('click', shareProfileCard);
       if (editing){   // perfil também tem estilos (não removível)
@@ -1108,7 +1108,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=64'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=65'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){

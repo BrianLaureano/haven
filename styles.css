@@ -128,10 +128,14 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 /* ---------- widgets: editar ---------- */
 .hi-wrap{display:flex; flex-direction:column; margin-bottom:16px}
 .hi-bar{display:flex; justify-content:flex-end; margin-bottom:8px; min-height:28px}
-.hi-edit{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-family:inherit;
-  font-size:12px; color:var(--ink-soft); background:rgba(255,255,255,.08); border:1px solid var(--line); transition:all .2s}
-.hi-edit:hover{color:var(--ink); background:rgba(255,255,255,.14)}
-.hi-edit.is-on{color:#1a1e25; background:var(--accent); border-color:transparent; font-weight:600}
+.hi-edit{display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:999px; font-family:inherit;
+  font-size:13px; font-weight:600; color:var(--ink); background:rgba(255,255,255,.1); border:1px solid var(--line);
+  box-shadow:0 6px 18px rgba(0,0,0,.18); transition:transform .18s var(--spring), background .2s, color .2s}
+.hi-edit svg{color:var(--accent)}
+.hi-edit:hover{background:rgba(255,255,255,.17)}
+.hi-edit:active{transform:scale(.95)}
+.hi-edit.is-on{color:#1a1e25; background:var(--accent); border-color:transparent}
+.hi-edit.is-on svg{color:#1a1e25}
 .hi{margin-bottom:0}
 .hi__card{position:relative}
 .hi.is-editing .hi__card{animation:jiggle .35s ease-in-out infinite alternate}
@@ -232,6 +236,9 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 .phead__avabtn{position:absolute; right:2px; bottom:2px; width:32px; height:32px; border-radius:50%;
   background:rgba(10,12,16,.72); color:#fff; border:1px solid rgba(255,255,255,.35); display:grid; place-items:center; cursor:pointer}
 .phead__avabtn svg{width:15px; height:15px}
+/* afordâncias de edição (câmera na capa/avatar) só no modo editar */
+.phead__coverbtn, .phead__avabtn{opacity:0; pointer-events:none; transition:opacity .2s var(--ease)}
+.hi.is-editing .phead__coverbtn, .hi.is-editing .phead__avabtn{opacity:1; pointer-events:auto}
 .phead__info{padding:10px 22px 22px; display:flex; flex-direction:column; gap:3px}
 .phead__name{font-size:24px; font-weight:600; letter-spacing:-.01em; line-height:1.15}
 .phead__insta{align-self:flex-start; font-size:13px; color:var(--accent); text-decoration:none; font-family:inherit; background:none; border:none; cursor:pointer; padding:0}
@@ -391,7 +398,8 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .topmes__tag{position:absolute; left:12px; top:12px; z-index:2; padding:4px 10px; border-radius:999px; font-size:10px; letter-spacing:.1em; background:rgba(10,12,16,.6); color:#fff}
 /* cidade */
 .cidade{display:flex; align-items:baseline; gap:8px; margin-top:6px}
-.cidade__n{font-size:34px; font-weight:650; color:var(--ink)} .cidade__u{font-size:13px; color:var(--ink-dim)}
+.cidade{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap}
+.cidade__n{font-size:34px; font-weight:650; color:var(--ink); line-height:1} .cidade__u{font-size:13px; color:var(--ink-dim)}
 /* semana */
 .week{display:flex; gap:5px; margin-top:8px}
 .week__d{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 2px; border-radius:11px; border:1px solid var(--line); background:rgba(255,255,255,.04); cursor:pointer}
@@ -656,8 +664,10 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 /* ============================================================
    MÚSICA
    ============================================================ */
-.mtop{display:flex; align-items:center; justify-content:space-between; gap:16px}
-.mtop__eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim)}
+.mtop{display:flex; align-items:center; justify-content:space-between; gap:12px 16px; flex-wrap:wrap}
+.mtop__title{flex:1 1 auto; min-width:0}
+.mtop__right{margin-left:auto}
+.mtop__eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim); white-space:nowrap}
 .mtop__title h2{margin:2px 0 0; font-size:clamp(26px,4vw,34px); font-weight:500; letter-spacing:-.01em}
 
 .src{display:flex; gap:4px; padding:5px; border-radius:999px}
@@ -788,8 +798,8 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 
 /* ---- palco (cover-flow) ---- */
 .mhero{display:flex; flex-direction:column; align-items:center; min-width:0}
-.coverflow{position:relative; width:100%; height:clamp(320px,54vh,480px);
-  perspective:1400px; transform-style:preserve-3d; margin:8px 0 10px;
+.coverflow{position:relative; width:100%; height:clamp(300px,46vh,430px);
+  perspective:1400px; transform-style:preserve-3d; margin:0 0 8px;
   user-select:none; touch-action:pan-y; -webkit-user-select:none}
 .cf-card{position:absolute; top:50%; left:50%; width:clamp(210px,60vw,300px); aspect-ratio:3/4;
   border-radius:20px; overflow:hidden; cursor:pointer; background:#1b2029;
@@ -1267,9 +1277,9 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .leaflet-pane{z-index:1}
 
 /* ---------- seletor de estilo do mapa ---------- */
-.map__styles{position:absolute; z-index:4; bottom:16px; left:50%; transform:translateX(-50%);
+.map__styles{position:absolute; z-index:4; bottom:20px; left:50%; transform:translateX(-50%);
   display:flex; gap:3px; padding:4px; border-radius:999px}
-.map__styles button{padding:8px 14px; border-radius:999px; font-family:inherit; font-size:12.5px; font-weight:500;
+.map__styles button{padding:7px 13px; border-radius:999px; font-family:inherit; font-size:12px; font-weight:500;
   color:var(--ink-soft); transition:color .25s, background .25s; white-space:nowrap}
 .map__styles button.is-on{color:#1a1e25; background:var(--ink); font-weight:600}
 
@@ -1327,7 +1337,7 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .map__tip{font-size:11.5px; color:var(--ink-dim); text-align:center; padding-top:2px}
 
 /* guia da cidade — fileira de lugares */
-.map__guide{position:absolute; z-index:3; left:0; right:0; bottom:64px; display:flex; gap:10px;
+.map__guide{position:absolute; z-index:3; left:0; right:0; bottom:76px; display:flex; gap:10px;
   padding:2px 14px 4px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
   scrollbar-width:none; animation:rise .5s var(--ease)}
 .map__guide::-webkit-scrollbar{display:none}
@@ -1630,7 +1640,10 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
    ENTRAR (gate)
    ============================================================ */
 .gate{position:fixed; inset:0; z-index:80; display:grid; place-items:center; padding:24px;
-  background:rgba(10,13,18,.55); backdrop-filter:blur(16px) saturate(1.1)}
+  background:radial-gradient(130% 90% at 50% 0%, rgba(201,168,240,.16), transparent 58%),
+    radial-gradient(120% 80% at 80% 100%, rgba(240,180,138,.1), transparent 60%),
+    rgba(9,12,17,.5);
+  backdrop-filter:blur(14px) saturate(1.15); -webkit-backdrop-filter:blur(14px) saturate(1.15)}
 .gate__card{width:100%; max-width:372px; padding:30px 30px 26px; border-radius:28px; text-align:center;
   display:flex; flex-direction:column; align-items:center; gap:12px; animation:rise .7s var(--ease)}
 .gate__brand{display:inline-flex; align-items:center; gap:9px}

@@ -151,6 +151,7 @@
     const cand = [...list].filter(x => x.poster).sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.addedAt || 0) - (a.addedAt || 0))[0];
     if (!cand) return null;
     const el = document.createElement('button'); el.className = 'chero'; el.type = 'button';
+    if (cand.id) el.dataset.heroId = cand.id;
     if (color) el.style.setProperty('--cc', color);
     const r = cand.rating || 0;
     const stars = r ? `<span class="chero__stars">${'★'.repeat(r)}<i>${'★'.repeat(5 - r)}</i></span>` : '';
@@ -327,10 +328,11 @@
       bindCatEdit(); return;
     }
     bodyEl.innerHTML = catHeader() || `<div class="crow"><span class="crow__label">Meus ${TYPES[type].label.toLowerCase()}</span><span class="crow__n">${list.length}</span></div>`;
-    if (list.length >= 3){ const hero = cHero(list, color, (TYPES[type]?.label) || catDef(type)?.label || 'Hobbies'); if (hero) bodyEl.appendChild(hero); }
+    let heroId = null;
+    if (list.length >= 3){ const hero = cHero(list, color, (TYPES[type]?.label) || catDef(type)?.label || 'Hobbies'); if (hero){ heroId = hero.dataset.heroId || null; bodyEl.appendChild(hero); } }
     const grid = document.createElement('div'); grid.className = 'cgrid';
     if (isCustom(type) && isOwner()) grid.appendChild(addCard());
-    [...list].sort((a, b) => b.addedAt - a.addedAt).forEach(it => grid.appendChild(itemCard(it, it, color)));
+    [...list].sort((a, b) => b.addedAt - a.addedAt).filter(it => it.id !== heroId).forEach(it => grid.appendChild(itemCard(it, it, color)));
     bodyEl.appendChild(grid);
     bindCatEdit();
   }
