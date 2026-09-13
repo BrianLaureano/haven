@@ -1601,6 +1601,14 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .share__actions{display:flex; gap:10px; margin-top:2px}
 .share__actions .btn{flex:1; justify-content:center; padding:14px}
 .share__actions .btn--go{margin-left:0}
+.share__ig{align-items:center; justify-content:center; gap:8px; width:100%; margin-top:10px; padding:12px; border-radius:13px;
+  font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink); background:rgba(255,255,255,.08); border:1px solid var(--line);
+  transition:transform .18s var(--spring), background .2s; cursor:pointer}
+.share__ig:not([hidden]){display:inline-flex}
+.share__ig:hover{background:rgba(255,255,255,.14)} .share__ig:active{transform:scale(.97)}
+.share__ig svg{color:var(--accent)}
+.share__hint{margin:11px 2px 0; font-size:12px; line-height:1.5; color:var(--ink-soft); text-align:center}
+.share__hint b{color:var(--ink); font-weight:600}
 
 @media (min-width:900px){
   .share__panel{max-width:none; flex-direction:row; align-items:center; gap:34px}

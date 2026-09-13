@@ -17,6 +17,12 @@
   const layoutsEl = $('[data-share-layouts]');
   const placeSel = $('[data-share-place]');
   const captionEl = $('[data-share-caption]');
+  const igBtn = $('[data-share-ig]');
+  const hintEl = $('[data-share-hint]');
+  // dá pra compartilhar arquivo (imagem) direto? (Web Share level 2)
+  const canFileShare = (() => { try { return !!(navigator.canShare && navigator.canShare({ files: [new File([new Blob([''],{type:'image/png'})], 'x.png', { type:'image/png' })] })); } catch { return false; } })();
+  const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
   const INK = '#f6f1e9', SOFT = 'rgba(246,241,233,.74)', DIM = 'rgba(246,241,233,.5)', ACCENT = '#f4d9b8';
   const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
@@ -728,6 +734,14 @@
     captionEl.value = '';
     captionEl.hidden = ['profile','city','place','quote'].includes(mode);   // esses não usam legenda editável
     captionEl.placeholder = mode === 'media' ? 'sua frase (opcional)' : 'uma legenda (opcional)';
+    if (hintEl){
+      hintEl.innerHTML = canFileShare
+        ? (isIOS
+            ? 'Toque em <b>Postar no story</b> → <b>Instagram</b>. Ou <b>Salvar imagem</b> e adicione pelo story.'
+            : 'Toque em <b>Postar no story</b> → escolha o <b>Instagram</b> → <b>Stories</b>.')
+        : 'Baixe a imagem e abra o Haven no <b>celular</b> pra postar direto no story.';
+    }
+    if (igBtn) igBtn.hidden = !isMobile;   // atalho pro app só faz sentido no celular
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add('is-on'));
     setTimeout(() => modal.classList.add('is-on'), 20);
@@ -746,17 +760,15 @@
   async function doShare(){
     const blob = await exportBlob(); if (!blob) return;
     const file = new File([blob], filename(), { type: 'image/png' });
-    const m = (window.HavenMusic && window.HavenMusic.now && window.HavenMusic.now()) || {};
-    const text = (mode === 'media' && item ? item.title : mode === 'profile' ? 'meu Haven ✨' : mode === 'city' ? 'minha cidade ✨'
-      : mode === 'place' ? (placeData?.name || 'um lugar') + ' ✨'
-      : mode === 'music' ? 'ouvindo ' + (m.title || 'agora') + ' 🎧'
-      : mode === 'gallery' ? 'um instante ✨' : mode === 'quote' ? (quoteText || 'uma frase') : 'meu cantinho de hoje');
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })){
-        await navigator.share({ files: [file], text }); return;
-      }
-    } catch { return; /* usuário cancelou */ }
-    download(blob); // fallback desktop
+    // caminho ideal (mobile): compartilha o ARQUIVO → sheet nativo → Instagram → Stories
+    if (canFileShare){
+      try { await navigator.share({ files: [file], title: 'Haven ✨' }); }
+      catch (_) { /* usuário cancelou — sem alarme */ }
+      return;
+    }
+    // sem Web Share (desktop): baixa e orienta
+    download(blob);
+    window.HavenToast?.('imagem salva ✓ — abra o Haven no celular pra postar no story');
   }
   function download(blob){
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename();
@@ -765,7 +777,18 @@
 
   /* ---------- wiring ---------- */
   $('[data-share-do]').addEventListener('click', doShare);
-  $('[data-share-download]').addEventListener('click', async () => { const b = await exportBlob(); if (b) download(b); });
+  $('[data-share-download]').addEventListener('click', async () => {
+    const b = await exportBlob(); if (!b) return; download(b);
+    window.HavenToast?.(isIOS ? 'salvando… toque em Salvar imagem, depois adicione no story' : 'imagem salva ✓ — adicione no seu story');
+    if (igBtn && isMobile) igBtn.hidden = false;
+  });
+  // abre a câmera de Stories do Instagram (app); fallback pro site
+  igBtn?.addEventListener('click', () => {
+    let left = false; const onHide = () => { left = true; };
+    document.addEventListener('visibilitychange', onHide, { once: true });
+    window.location.href = 'instagram://story-camera';
+    setTimeout(() => { document.removeEventListener('visibilitychange', onHide); if (!left) window.open('https://www.instagram.com', '_blank', 'noopener'); }, 1200);
+  });
   document.querySelectorAll('[data-share-close]').forEach(el => el.addEventListener('click', close));
   togglesEl.querySelectorAll('.tog').forEach(b => b.addEventListener('click', () => {
     const k = b.dataset.tog; opts[k] = !opts[k]; b.classList.toggle('is-on', opts[k]);
