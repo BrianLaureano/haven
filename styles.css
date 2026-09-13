@@ -136,6 +136,10 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 .hi-edit:active{transform:scale(.95)}
 .hi-edit.is-on{color:#1a1e25; background:var(--accent); border-color:transparent}
 .hi-edit.is-on svg{color:#1a1e25}
+/* chamado sutil pra personalizar (some após o 1o editar) */
+@keyframes editHint{ 0%,100%{transform:none} 50%{transform:translateY(-2px) scale(1.05)} }
+.hi-edit.is-hint{animation:editHint 2.2s var(--spring) .9s 3; box-shadow:0 8px 22px color-mix(in srgb, var(--accent) 42%, rgba(0,0,0,.22))}
+@media (prefers-reduced-motion:reduce){ .hi-edit.is-hint{animation:none} }
 .hi{margin-bottom:0}
 .hi__card{position:relative}
 .hi.is-editing .hi__card{animation:jiggle .35s ease-in-out infinite alternate}
@@ -1244,6 +1248,9 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .view[data-view="map"]{padding-bottom:6px}
 .map{position:relative; flex:1; min-height:0; border-radius:var(--r); overflow:hidden;
   border:1px solid var(--line); box-shadow:0 20px 60px rgba(10,14,20,.4)}
+/* base do rodapé: aterra cards + abas de estilo, separando-os da constelação */
+.map::after{content:''; position:absolute; inset:auto 0 0 0; height:230px; z-index:1; pointer-events:none;
+  background:linear-gradient(to top, rgba(8,11,18,.62), rgba(8,11,18,.24) 46%, transparent)}
 .map__canvas{position:absolute; inset:0; transition:transform .8s var(--ease); transform-origin:50% 56%; will-change:transform}
 .map__canvas canvas{outline:none}
 /* 3D minimalista: inclina o mapa em perspectiva e some no horizonte */

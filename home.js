@@ -724,6 +724,8 @@
     editLbl.textContent = editing ? 'Concluir' : 'Editar';
     editBtn.classList.toggle('is-on', editing);
     editBtn.hidden = !isOwner();
+    let edited = false; try { edited = localStorage.getItem('haven.edited') === '1'; } catch {}
+    editBtn.classList.toggle('is-hint', isOwner() && !editing && !edited);   // chama a atenção pra personalizar (some após editar)
     renderTray();
     if (editing) enableDrag();
     afterRender();
@@ -1071,7 +1073,7 @@
     profile.moment = profile.moment || { read:'', watch:'', play:'' };
     askText(lbl, profile.moment[key] || '', v => { profile.moment[key] = (v || '').trim(); save(); render(); });
   }
-  editBtn?.addEventListener('click', () => { editing = !editing; render(); if (editing) maybeCoach(); });
+  editBtn?.addEventListener('click', () => { try { localStorage.setItem('haven.edited', '1'); } catch {} editBtn.classList.remove('is-hint'); editing = !editing; render(); if (editing) maybeCoach(); });
   function maybeCoach(){
     try { if (localStorage.getItem('haven.coach') === '1') return; } catch {}
     if (document.querySelector('.coach')) return;
@@ -1108,7 +1110,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=65'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=66'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
