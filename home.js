@@ -148,6 +148,14 @@
   }
   const fx = (h) => { haptic(h || 9); blip(); };
 
+  // chip de "compartilhar no story" no canto de um widget (dono)
+  function shareChip(onClick){
+    const b = document.createElement('button'); b.className = 'wshare'; b.type = 'button'; b.setAttribute('aria-label', 'Compartilhar no story');
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';
+    b.addEventListener('click', e => { e.stopPropagation(); onClick(); });
+    return b;
+  }
+
   /* lightbox global (foto em tela cheia) */
   function lightbox(url){
     if (!url) return;
@@ -227,7 +235,8 @@
     else document.documentElement.style.removeProperty('--user-font');
     if (profile.theme === 'light') document.documentElement.dataset.theme = 'light'; else document.documentElement.removeAttribute('data-theme');
     // expõe o tema pro card de story usar a mesma fonte/cor (instagramável)
-    window.HavenTheme = { font: (f && f.css) || "'Outfit',sans-serif", accent: profile.accent || '' };
+    window.HavenTheme = { font: (f && f.css) || "'Outfit',sans-serif", accent: profile.accent || '',
+      handle: (profile.instagram || profile.socials?.instagram || '').replace(/^@/, ''), name: (me?.name || '') };
   }
   let col = { movie:[], book:[], game:[] }, cats = [], places = [], memories = [], editing = false, preview = false;
   let me = { name: 'Você', photo: null };   // dono/visitante (foto + nome do cabeçalho)
@@ -384,6 +393,7 @@
       const q = profile.quote ? esc(profile.quote) : (isOwner() ? '<span class="hi__ph">toque pra escrever uma frase</span>' : '');
       if (v === 1){ c.classList.add('w-frase--big'); c.innerHTML = `<p class="frase__big">${q}</p>`; }
       else c.innerHTML = `<span class="frase__mark">"</span><p class="frase__txt">${q}</p>`;
+      if (isOwner() && profile.quote) c.appendChild(shareChip(() => window.HavenShare?.openQuote?.(profile.quote)));
     }},
     contador: { label:'Contador', editFn: () => editCounter(), build(c){
       c.classList.add('w', 'w-count');
@@ -1110,7 +1120,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=67'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=68'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){

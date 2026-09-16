@@ -270,6 +270,7 @@
         <input class="showform__in" data-name maxlength="80" placeholder="Artista / evento" />
         <div class="showform__row"><input class="showform__in" data-date type="date" /><input class="showform__in" data-local maxlength="60" placeholder="Local" /></div>
         <input class="showform__in" data-link placeholder="Link do ingresso (opcional)" inputmode="url" />
+        ${existing ? '<button class="showform__share" data-shareshow type="button"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg> Compartilhar no story</button>' : ''}
         <div class="showform__acts">${existing ? '<button class="btn btn--del" data-del type="button">excluir</button>' : ''}<button class="btn btn--go" data-save type="button">Salvar</button></div>
       </div>`;
     document.body.appendChild(el);
@@ -297,6 +298,12 @@
       if (isNew) window.HavenFX?.reward({ label: `${it.title} — no seu rolê ✓` });
     });
     q('[data-del]')?.addEventListener('click', () => { col.show = (col.show || []).filter(x => x.id !== it.id); persist(); window.HavenPublish?.(); close(); renderShows(); });
+    q('[data-shareshow]')?.addEventListener('click', () => {
+      const dt = showDate(q('[data-date]').value || it.date);
+      const when = [dt.label, dt.rel].filter(Boolean).join(' · ');
+      close();
+      window.HavenShare?.openShow?.({ title: q('[data-name]').value.trim() || it.title, poster: posterUrl, local: q('[data-local]').value.trim() || it.local, when });
+    });
   }
 
   function renderCollection(){

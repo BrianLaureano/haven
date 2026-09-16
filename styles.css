@@ -1100,6 +1100,18 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .showform__row .showform__in{flex:1; min-width:0}
 .showform__acts{display:flex; gap:10px; margin-top:6px}
 .showform__acts .btn--go{flex:1; justify-content:center; padding:13px}
+.showform__share{display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px; border-radius:13px;
+  font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink); background:rgba(255,255,255,.08); border:1px solid var(--line);
+  cursor:pointer; transition:transform .18s var(--spring), background .2s}
+.showform__share:hover{background:rgba(255,255,255,.14)} .showform__share:active{transform:scale(.97)}
+.showform__share svg{color:var(--accent)}
+/* chip de compartilhar no canto de um widget (dono) */
+.wshare{position:absolute; top:10px; right:10px; z-index:3; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  color:var(--ink-soft); background:rgba(255,255,255,.09); border:1px solid var(--line); cursor:pointer;
+  transition:transform .18s var(--spring), background .2s, color .2s}
+.wshare:hover{color:var(--ink); background:rgba(255,255,255,.16)}
+.wshare:active{transform:scale(.9)}
+.hi.is-editing .wshare{display:none}
 .crow{display:flex; align-items:baseline; gap:8px; margin-bottom:12px}
 .crow__label{font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
 .crow__n{font-size:12px; color:var(--ink-dim)}

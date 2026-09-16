@@ -27,7 +27,7 @@
   const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
   let mode = 'moment', item = null, opts = { weather: true, music: true, place: false };
-  let profileData = null, cityData = null, placeData = null, galleryData = null, quoteText = '';
+  let profileData = null, cityData = null, placeData = null, galleryData = null, quoteText = '', showData = null;
   let TF = 'Outfit';   // fonte de título = a fonte/tema da pessoa (instagramável)
   const tfFam = () => (String(TF).split(',')[0].trim()) || 'Outfit';
   const hexA = (hex, a) => {
@@ -196,7 +196,7 @@
     return hwReady;
   }
   let layoutKey = (() => { try { return localStorage.getItem('haven.share.layout') || 'card'; } catch { return 'card'; } })();
-  const hasLayout = () => ['media','place','city','profile','music','gallery'].includes(mode);
+  const hasLayout = () => ['media','place','city','profile','music','gallery','show'].includes(mode);
   // fileira de miniaturas (usada nos layouts cheia/revista da cidade)
   function thumbStrip(tiles, x, y, size, gap, max){
     tiles.filter(t => t.img).slice(0, max).forEach((t, i) => {
@@ -380,10 +380,11 @@
 
     const pad = 108;
     ctx.textBaseline = 'alphabetic';
-    // topo
+    // topo — @ do dono (ou HAVEN)
+    const oh = (window.HavenTheme && window.HavenTheme.handle) || '';
     ctx.textAlign = 'left'; ctx.font = '600 30px Outfit'; ctx.fillStyle = INK;
-    if ('letterSpacing' in ctx) ctx.letterSpacing = '8px';
-    ctx.fillText('HAVEN', pad, 168); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = oh ? '0px' : '8px';
+    ctx.fillText(oh ? '@' + oh : 'HAVEN', pad, 168); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     ctx.textAlign = 'right'; ctx.font = '400 30px Outfit'; ctx.fillStyle = SOFT;
     ctx.fillText(dateStr(), W - pad, 168);
 
@@ -685,6 +686,19 @@
     });
   }
 
+  /* ---------- SHOW card (vou nesse show) ---------- */
+  async function drawShow(){
+    const d = showData || {};
+    const shot = await loadImg(d.poster);
+    const scene = await loadImg($('.scene__img.is-on')?.src);
+    drawLayout({
+      img: shot, scene,
+      eyebrow: (d.when ? d.when + ' · ' : '') + 'VOU NESSE SHOW', eyebrowChip: false, eyebrowColor: accentNow(),
+      title: d.title || 'Show', subtitle: d.local || '',
+      note: captionEl.value.trim(), emoji: '🎫', color: accentNow(), ratio: d.poster ? 3 / 4 : 1
+    });
+  }
+
   /* ---------- QUOTE card (uma frase sua, editorial) ---------- */
   async function drawQuote(){
     const scene = await loadImg($('.scene__img.is-on')?.src);
@@ -701,12 +715,19 @@
     footer();
   }
 
-  function footer(){
-    ctx.textAlign = 'center'; ctx.font = '600 26px Outfit'; ctx.fillStyle = SOFT;
-    if ('letterSpacing' in ctx) ctx.letterSpacing = '7px';
-    ctx.fillText('HAVEN', W / 2, H - 118); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-    ctx.font = '400 24px Outfit'; ctx.fillStyle = DIM; ctx.fillText(dateStr(), W / 2, H - 78);
+  // assinatura do card: leva o @ do dono (todo story vira convite pro Haven dele)
+  function brand(cx, y, align){
+    const h = (window.HavenTheme && window.HavenTheme.handle) || '';
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'alphabetic';
+    if (h){
+      ctx.font = '600 30px Outfit'; ctx.fillStyle = INK; ctx.fillText('@' + h, cx, y);
+      ctx.font = '500 20px Outfit'; ctx.fillStyle = DIM; ls('5px'); ctx.fillText('NO HAVEN', cx, y + 32); ls('0px');
+    } else {
+      ctx.font = '600 26px Outfit'; ctx.fillStyle = SOFT; ls('7px'); ctx.fillText('HAVEN', cx, y); ls('0px');
+      ctx.font = '400 24px Outfit'; ctx.fillStyle = DIM; ctx.fillText(dateStr(), cx, y + 34);
+    }
   }
+  function footer(){ brand(W / 2, H - 116); }
 
   async function render(){
     await fonts(); if (layoutKey === 'polaroid') await ensureHandwrite();
@@ -716,6 +737,7 @@
     else if (mode === 'place') await drawPlace();
     else if (mode === 'music') await drawMusic();
     else if (mode === 'gallery') await drawGallery();
+    else if (mode === 'show') await drawShow();
     else if (mode === 'quote') await drawQuote();
     else await drawMoment();
   }
@@ -753,7 +775,7 @@
   function filename(){
     const base = mode === 'media' && item ? item.title.replace(/[^\w]+/g, '-').toLowerCase()
       : mode === 'profile' ? 'meu-haven' : mode === 'city' ? 'minha-cidade' : mode === 'place' ? 'lugar'
-      : mode === 'music' ? 'ouvindo-agora' : mode === 'gallery' ? 'foto' : mode === 'quote' ? 'frase' : 'haven-momento';
+      : mode === 'music' ? 'ouvindo-agora' : mode === 'gallery' ? 'foto' : mode === 'show' ? 'show' : mode === 'quote' ? 'frase' : 'haven-momento';
     return base + '.png';
   }
   async function exportBlob(){ return new Promise(res => canvas.toBlob(res, 'image/png')); }
@@ -805,6 +827,7 @@
     openCity(data){ mode = 'city'; item = null; cityData = data || {}; TF = themeFont(); openModal(); },
     openPlace(data){ mode = 'place'; item = null; placeData = data || {}; TF = themeFont(); openModal(); },
     openMusic(){ mode = 'music'; item = null; TF = themeFont(); openModal(); },
+    openShow(data){ mode = 'show'; item = null; showData = data || {}; TF = themeFont(); openModal(); },
     openGallery(url, caption){ mode = 'gallery'; item = null; galleryData = { url, caption: caption || '' }; TF = themeFont(); openModal(); },
     openQuote(text){ mode = 'quote'; item = null; quoteText = text || ''; TF = themeFont(); openModal(); }
   };
