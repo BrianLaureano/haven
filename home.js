@@ -236,7 +236,7 @@
     if (profile.theme === 'light') document.documentElement.dataset.theme = 'light'; else document.documentElement.removeAttribute('data-theme');
     // expõe o tema pro card de story usar a mesma fonte/cor (instagramável)
     window.HavenTheme = { font: (f && f.css) || "'Outfit',sans-serif", accent: profile.accent || '',
-      handle: (profile.instagram || profile.socials?.instagram || '').replace(/^@/, ''), name: (me?.name || '') };
+      handle: (profile.instagram || profile.socials?.instagram || '').replace(/^@/, ''), name: (me?.name || ''), photo: (me?.photo || profile.photo || '') };
   }
   let col = { movie:[], book:[], game:[] }, cats = [], places = [], memories = [], editing = false, preview = false;
   let me = { name: 'Você', photo: null };   // dono/visitante (foto + nome do cabeçalho)
@@ -1120,7 +1120,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=68'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=69'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1186,6 +1186,33 @@
       posters: favs, titles: total, places: places.length
     });
   }
+
+  /* ---------- seletor "postar no story" (hub rápido do dock) ---------- */
+  function openStoryPicker(){
+    if (VISIT || !isOwner()) { window.HavenShare?.open?.(); return; }
+    if (document.querySelector('.spick')) return;
+    const opts = [
+      { emoji:'🕐', label:'Momento', sub:'hora · clima · som', fn:() => window.HavenShare?.open?.() },
+      { emoji:'🎧', label:'Ouvindo agora', sub:'faixa + capa', fn:() => window.HavenShare?.openMusic?.() },
+      { emoji:'✨', label:'Meu Haven', sub:'perfil + destaques', fn:() => shareProfileCard() }
+    ];
+    if (profile.quote) opts.push({ emoji:'❝', label:'Frase', sub:'sua frase', fn:() => window.HavenShare?.openQuote?.(profile.quote) });
+    const el = document.createElement('div'); el.className = 'spick';
+    el.innerHTML = `<div class="spick__scrim" data-x></div>
+      <div class="spick__card glass">
+        <div class="spick__t">Postar no story</div>
+        <div class="spick__grid">${opts.map((o, i) => `<button class="spick__opt" data-i="${i}" type="button"><span class="spick__ic">${o.emoji}</span><b>${esc(o.label)}</b><i>${esc(o.sub)}</i></button>`).join('')}</div>
+        <p class="spick__note">um filme, lugar, foto ou show você compartilha tocando nele</p>
+        <button class="spick__later" data-x type="button">agora não</button>
+      </div>`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('is-on'));
+    const close = () => { el.classList.remove('is-on'); setTimeout(() => el.remove(), 240); };
+    el.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', close));
+    el.querySelectorAll('.spick__opt').forEach(b => b.addEventListener('click', () => { const o = opts[+b.dataset.i]; close(); setTimeout(() => o.fn(), 120); }));
+    window.HavenSheet?.grab(el.querySelector('.spick__card'), close);
+  }
+  window.HavenStoryPicker = openStoryPicker;
 
   /* ---------- onboarding (primeira vez do dono) ---------- */
   const ONB_KEY = 'haven.onboarded';

@@ -747,6 +747,7 @@
   /* ---------- share button (progressive) ---------- */
   const shareBtn = $('.dock__share');
   shareBtn?.addEventListener('click', () => {
+    if (window.HavenStoryPicker) return window.HavenStoryPicker();   // hub: escolhe o que postar
     if (window.HavenShare) return window.HavenShare.open();
     // fallback (share.js não carregou)
     if (navigator.share) navigator.share({ title: 'Haven', url: location.href }).catch(() => {});

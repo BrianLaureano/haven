@@ -28,7 +28,7 @@
   <!-- só a fonte padrão vem no boot; as outras carregam sob demanda (home.js ensureFontLoaded) -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="styles.css?v=68" />
+  <link rel="stylesheet" href="styles.css?v=69" />
 </head>
 <body>
   <!-- scene / wallpaper (persistent shell) -->
@@ -409,7 +409,17 @@
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
       <div class="share__stage">
-        <canvas class="share__canvas" data-share-canvas width="1080" height="1920"></canvas>
+        <div class="share__frame">
+          <canvas class="share__canvas" data-share-canvas width="1080" height="1920"></canvas>
+          <div class="igchrome" aria-hidden="true">
+            <div class="igchrome__bars"><i></i><i></i><i></i></div>
+            <div class="igchrome__head">
+              <span class="igchrome__ava" data-igc-ava></span>
+              <b class="igchrome__name" data-igc-name>seu story</b>
+              <span class="igchrome__time">agora</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="share__controls">
         <div class="share__styles" data-share-layouts aria-label="Layout do card" hidden></div>
@@ -493,21 +503,21 @@
     </div>
   </div>
 
-  <script src="firebase-config.js?v=68"></script>
+  <script src="firebase-config.js?v=69"></script>
   <!-- ?mock=1 ou ?demo=1 → amostra de Música (capas reais via iTunes) pro player rico sem backend -->
-  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=68"><\/script>');</script>
+  <script>if(/[?&](mock|demo)=/.test(location.search))document.write('<script src="mock-music.js?v=69"><\/script>');</script>
   <!-- DEV: ?demo=1 semeia um Haven cheio no modo local (gitignored) -->
-  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=68"><\/script>');</script>
-  <script src="spotify.js?v=68"></script>
-  <script src="haven-db.js?v=68"></script>
-  <script src="main.js?v=68"></script>
+  <script>if(new URLSearchParams(location.search).has('demo'))document.write('<script src="demo-content.js?v=69"><\/script>');</script>
+  <script src="spotify.js?v=69"></script>
+  <script src="haven-db.js?v=69"></script>
+  <script src="main.js?v=69"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="map.js?v=68"></script>
-  <script src="catalog.js?v=68"></script>
-  <script src="share.js?v=68"></script>
-  <script src="wallpaper.js?v=68"></script>
-  <script src="home.js?v=68"></script>
-  <script src="auth.js?v=68"></script>
+  <script src="map.js?v=69"></script>
+  <script src="catalog.js?v=69"></script>
+  <script src="share.js?v=69"></script>
+  <script src="wallpaper.js?v=69"></script>
+  <script src="home.js?v=69"></script>
+  <script src="auth.js?v=69"></script>
   <script>
     if ('serviceWorker' in navigator){
       // se um SW novo assumir o controle (deploy novo), recarrega 1x pra pegar o conjunto

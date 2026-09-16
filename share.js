@@ -19,6 +19,8 @@
   const captionEl = $('[data-share-caption]');
   const igBtn = $('[data-share-ig]');
   const hintEl = $('[data-share-hint]');
+  const igcAva = $('[data-igc-ava]');
+  const igcName = $('[data-igc-name]');
   // dá pra compartilhar arquivo (imagem) direto? (Web Share level 2)
   const canFileShare = (() => { try { return !!(navigator.canShare && navigator.canShare({ files: [new File([new Blob([''],{type:'image/png'})], 'x.png', { type:'image/png' })] })); } catch { return false; } })();
   const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
@@ -764,6 +766,11 @@
         : 'Baixe a imagem e abra o Haven no <b>celular</b> pra postar direto no story.';
     }
     if (igBtn) igBtn.hidden = !isMobile;   // atalho pro app só faz sentido no celular
+    // moldura de story: avatar + @ do dono
+    const oh = (window.HavenTheme && window.HavenTheme.handle) || '';
+    const on = (window.HavenTheme && window.HavenTheme.name) || '';
+    if (igcName) igcName.textContent = oh ? '@' + oh : (on || 'seu story');
+    if (igcAva) igcAva.style.backgroundImage = (window.HavenTheme && window.HavenTheme.photo) ? `url('${window.HavenTheme.photo}')` : '';
     modal.hidden = false;
     requestAnimationFrame(() => modal.classList.add('is-on'));
     setTimeout(() => modal.classList.add('is-on'), 20);

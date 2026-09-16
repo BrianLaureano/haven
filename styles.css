@@ -1589,8 +1589,22 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .share__stage{flex:1; min-height:0; display:flex; align-items:center; justify-content:center; width:100%;
   transform:translateY(14px); opacity:0; transition:transform .5s var(--ease), opacity .5s}
 .share.is-on .share__stage{transform:none; opacity:1}
-.share__canvas{height:min(58vh,620px); width:auto; max-width:100%; border-radius:18px;
-  box-shadow:0 30px 80px rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.14)}
+.share__frame{position:relative; display:inline-block; line-height:0; border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6); animation:rise .5s var(--ease)}
+.share__canvas{height:min(58vh,620px); width:auto; max-width:100%; border-radius:18px; border:1px solid rgba(255,255,255,.14); display:block}
+/* moldura ilustrativa de story do Instagram (só na prévia; a imagem exportada é limpa) */
+.igchrome{position:absolute; inset:0; border-radius:18px; overflow:hidden; pointer-events:none; line-height:1.2;
+  background:linear-gradient(180deg, rgba(0,0,0,.34), transparent 16%, transparent 80%, rgba(0,0,0,.42))}
+.igchrome__bars{position:absolute; top:2.5%; left:4%; right:4%; display:flex; gap:3px}
+.igchrome__bars i{flex:1; height:2px; border-radius:2px; background:rgba(255,255,255,.35)}
+.igchrome__bars i:first-child{background:#fff}
+.igchrome__head{position:absolute; top:5%; left:4.5%; right:4.5%; display:flex; align-items:center; gap:7px; color:#fff}
+.igchrome__ava{width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18) center/cover no-repeat; border:1.5px solid rgba(255,255,255,.7); flex:0 0 auto}
+.igchrome__name{font-size:12.5px; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.igchrome__time{font-size:11px; opacity:.85; text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.igchrome__foot{position:absolute; left:4.5%; right:4.5%; bottom:3.2%; display:flex; align-items:center; gap:10px}
+.igchrome__reply{flex:1; padding:8px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.55); color:rgba(255,255,255,.9); font-size:11.5px}
+.igchrome__foot svg{color:#fff; flex:0 0 auto; filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
 
 .share__controls{width:100%; display:flex; flex-direction:column; gap:12px}
 .share__styles{display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
@@ -1784,6 +1798,26 @@ body.is-preview .dock, body.is-preview [data-hi-edit]{display:none!important}
 .ready__go{width:100%; justify-content:center; padding:14px; margin-top:4px}
 .ready__later{background:none; border:0; color:var(--ink-dim); font-family:inherit; font-size:13px; cursor:pointer; padding:6px}
 .ready__later:hover{color:var(--ink-soft)}
+
+/* ---------- seletor "postar no story" ---------- */
+.spick{position:fixed; inset:0; z-index:93; display:grid; place-items:end center; opacity:0; pointer-events:none; transition:opacity .3s var(--ease)}
+.spick.is-on{opacity:1; pointer-events:auto}
+.spick__scrim{position:absolute; inset:0; background:rgba(6,8,12,.66); backdrop-filter:blur(8px)}
+.spick__card{position:relative; z-index:1; width:100%; max-width:440px; border-radius:28px 28px 0 0; border-bottom:0;
+  padding:20px 20px calc(18px + env(safe-area-inset-bottom)); transform:translateY(32px); transition:transform .34s var(--spring)}
+.spick.is-on .spick__card{transform:none}
+.spick__card::before{content:''; display:block; width:40px; height:4px; border-radius:99px; background:rgba(255,255,255,.18); margin:-4px auto 14px}
+.spick__t{font-size:19px; font-weight:600; color:var(--ink); text-align:center; margin-bottom:14px}
+.spick__grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.spick__opt{display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:15px 16px; border-radius:18px;
+  background:rgba(255,255,255,.06); border:1px solid var(--line); cursor:pointer; text-align:left;
+  transition:transform .18s var(--spring), background .2s}
+.spick__opt:hover{background:rgba(255,255,255,.11)} .spick__opt:active{transform:scale(.96)}
+.spick__ic{font-size:24px; margin-bottom:4px; line-height:1}
+.spick__opt b{font-size:14.5px; font-weight:600; color:var(--ink)}
+.spick__opt i{font-size:11.5px; font-style:normal; color:var(--ink-soft)}
+.spick__note{margin:13px 4px 2px; font-size:11.5px; color:var(--ink-dim); text-align:center; line-height:1.4}
+.spick__later{display:block; margin:4px auto 0; background:none; border:0; color:var(--ink-soft); font-family:inherit; font-size:13px; cursor:pointer; padding:8px}
 
 /* ---------- visitante (perfil público) ---------- */
 /* dock enxuto: mantém navegação (Início/Mapa/Música/Coleção), esconde as
