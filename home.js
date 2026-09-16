@@ -58,6 +58,37 @@
   const editBtn = $('[data-hi-edit]'), editLbl = $('[data-hi-edit-lbl]');
 
   const DEFAULT = ['agora', 'favoritos', 'playlist', 'now', 'filmes', 'livros', 'jogos', 'memories'];
+  // catálogo curado pro onboarding semear a 1a página (capas verificadas)
+  const _tmdb = p => `https://image.tmdb.org/t/p/w342${p}`, _book = i => `https://covers.openlibrary.org/b/isbn/${i}-L.jpg`, _game = id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`;
+  const CURATED = {
+    movie: [
+      { id:'movie:157336', title:'Interestelar', sub:'2014', poster:_tmdb('/6ricSDD83BClJsFdGB6x7cM0MFQ.jpg') },
+      { id:'movie:496243', title:'Parasita', sub:'2019', poster:_tmdb('/igw938inb6Fy0YVcwIyxQ7Lu5FO.jpg') },
+      { id:'movie:598', title:'Cidade de Deus', sub:'2002', poster:_tmdb('/gfnXixcGC060QcG6JPxN6AMdVsq.jpg') },
+      { id:'movie:693134', title:'Duna: Parte Dois', sub:'2024', poster:_tmdb('/hH5lhwd8RzvVGbpRixPvIOltZLt.jpg') },
+      { id:'movie:1704', title:'Central do Brasil', sub:'1998', poster:_tmdb('/qfyWFhUhqeNRU9HmCaBDAxVKRZ9.jpg') }
+    ],
+    book: [
+      { id:'book:nome-do-vento', title:'O Nome do Vento', sub:'Rothfuss', poster:_book('9780756404741') },
+      { id:'book:duna', title:'Duna', sub:'Herbert', poster:_book('9780441172719') },
+      { id:'book:sapiens', title:'Sapiens', sub:'Harari', poster:_book('9780062316097') },
+      { id:'book:1984', title:'1984', sub:'Orwell', poster:_book('9780451524935') }
+    ],
+    game: [
+      { id:'game:1245620', title:'Elden Ring', sub:'FromSoftware', poster:_game(1245620) },
+      { id:'game:1145360', title:'Hades', sub:'Supergiant', poster:_game(1145360) },
+      { id:'game:367520', title:'Hollow Knight', sub:'Team Cherry', poster:_game(367520) },
+      { id:'game:1174180', title:'Red Dead 2', sub:'Rockstar', poster:_game(1174180) }
+    ],
+    place: [
+      { name:'Coffee Lab', cat:'cafe', lat:-23.5546, lng:-46.6899 },
+      { name:'MASP', cat:'outro', lat:-23.5614, lng:-46.6558 },
+      { name:'Parque Ibirapuera', cat:'parque', lat:-23.5874, lng:-46.6576 },
+      { name:'Beco do Batman', cat:'role', lat:-23.5548, lng:-46.6912 },
+      { name:'Mercado Municipal', cat:'comida', lat:-23.5416, lng:-46.6294 },
+      { name:'Mirante 9 de Julho', cat:'vista', lat:-23.5709, lng:-46.6403 }
+    ]
+  };
   let profile = { widgets: DEFAULT.slice(), bio: '', instagram: '', playlist: '', accent: '', moment: { read:'', watch:'', play:'' }, socials: {}, hiddenCats: [], layout: {}, blocks: {}, cover: '', font: '', quote: '', counter: { label:'', date:'' }, status: { emoji:'', text:'' }, pin: {}, gallery: [], links: [], video: '', week: {}, theme: '' };
   const ACCENTS = ['#f4d9b8', '#e6a4c4', '#a4c8e6', '#a8e0c0', '#d8b4f0', '#f0b48a', '#e8d48a'];
   // fontes curadas (carregadas no index.html) — a pessoa escolhe a cara do Haven dela
@@ -1120,7 +1151,7 @@
   function ensureQR(){
     if (window.qrcode) return Promise.resolve(true);
     if (qrLoad) return qrLoad;
-    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=69'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+    qrLoad = new Promise(res => { const s = document.createElement('script'); s.src = 'qrcode.js?v=70'; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
     return qrLoad;
   }
   async function shareSheet(){
@@ -1236,6 +1267,13 @@
           <span class="onb__vlbl">ou escolha só um vibe ✨</span>
           <div class="onb__vibes" data-onb-vibes></div>
         </div>
+        <div class="onb__pick">
+          <span class="onb__vlbl">o que você curte? <i>toque nos seus favoritos</i></span>
+          <div class="onb__prow" data-onb-pick="movie"></div>
+          <div class="onb__prow" data-onb-pick="book"></div>
+          <div class="onb__prow" data-onb-pick="game"></div>
+          <div class="onb__chiprow" data-onb-pick="place"></div>
+        </div>
         <label class="onb__field"><span>Uma linha sobre você</span>
           <input data-onb-bio maxlength="140" placeholder="cinema, café e um bom livro…" /></label>
         <label class="onb__field"><span>Seu @ do Instagram</span>
@@ -1269,6 +1307,32 @@
       b.onclick = () => { applyPreset(p); vibes.querySelectorAll('.preset').forEach(x => x.classList.toggle('is-on', x === b)); };
       vibes.appendChild(b);
     });
+    // grades "o que você curte" (semeia a 1ª página)
+    const picks = { movie:new Set(), book:new Set(), game:new Set(), place:new Set() };
+    ['movie','book','game'].forEach(t => {
+      const row = $$(`[data-onb-pick="${t}"]`); if (!row) return;
+      CURATED[t].forEach(it => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'onb__ptile';
+        b.innerHTML = `<span class="onb__pimg"><img loading="lazy" alt="" src="${it.poster}" onerror="this.style.opacity=0"><span class="onb__pcheck">✓</span></span><span class="onb__ptt">${esc(it.title)}</span>`;
+        b.onclick = () => { const s = picks[t]; if (s.has(it.id)){ s.delete(it.id); b.classList.remove('is-picked'); } else { s.add(it.id); b.classList.add('is-picked'); haptic(6); } };
+        row.appendChild(b);
+      });
+    });
+    const prow = $$('[data-onb-pick="place"]');
+    if (prow) CURATED.place.forEach(p => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'onb__chip';
+      b.innerHTML = `<span class="onb__chipdot" style="background:${CAT[p.cat] || CAT.outro}"></span>${esc(p.name)}`;
+      b.onclick = () => { const s = picks.place; if (s.has(p.name)){ s.delete(p.name); b.classList.remove('is-picked'); } else { s.add(p.name); b.classList.add('is-picked'); haptic(6); } };
+      prow.appendChild(b);
+    });
+    const seedPicks = () => {
+      const t0 = Date.now();
+      const col2 = { movie:[], book:[], game:[], $cats: [] };
+      ['movie','book','game'].forEach(t => CURATED[t].forEach(it => { if (picks[t].has(it.id)) col2[t].push({ id:it.id, title:it.title, poster:it.poster, sub:it.sub, rating:5, type:t, addedAt: t0 - Math.random()*1e6 }); }));
+      const pl2 = CURATED.place.filter(p => picks.place.has(p.name)).map((p, i) => ({ id:'seed'+t0+i, cat:p.cat, name:p.name, lat:p.lat, lng:p.lng, rating:5, note:'', photos:[] }));
+      if (col2.movie.length || col2.book.length || col2.game.length){ col = col2; try { db()?.setDoc('collection', col2); } catch(_){} }
+      if (pl2.length){ places = pl2; try { db()?.setDoc('places', pl2); } catch(_){} }
+    };
     $$('[data-onb-wall]').addEventListener('click', () => window.HavenWallpaper?.open?.());
     const done = () => { try { localStorage.setItem(ONB_KEY, '1'); } catch(_){} el.classList.remove('is-on'); setTimeout(()=>el.remove(), 240); };
     window.HavenSheet?.grab(el.querySelector('.onb__card'), () => { save(); done(); });
@@ -1278,7 +1342,8 @@
       profile.instagram = $$('[data-onb-insta]').value.trim().replace(/^@/,'');
       profile.socials = profile.socials || {};
       profile.socials.instagram = profile.instagram;
-      save(); render(); done();
+      seedPicks();
+      save(); render(); publish(); done();
     });
   }
 

@@ -278,6 +278,25 @@ button{font:inherit; color:inherit; cursor:pointer; background:none; border:none
 .onb__vlbl{font-size:11px; color:var(--ink-dim)}
 .onb__vibes{display:flex; flex-wrap:wrap; gap:7px; max-height:118px; overflow-y:auto; scrollbar-width:none}
 .onb__vibes::-webkit-scrollbar{display:none}
+.onb__vlbl i{font-style:normal; color:var(--ink-soft); opacity:.7}
+/* grades "o que você curte" (semear a 1ª página) */
+.onb__pick{display:flex; flex-direction:column; gap:9px; margin:4px 0 6px}
+.onb__prow{display:flex; gap:9px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px}
+.onb__prow::-webkit-scrollbar{display:none}
+.onb__ptile{flex:0 0 auto; width:72px; display:flex; flex-direction:column; gap:5px; background:none; border:0; cursor:pointer; padding:0; font-family:inherit}
+.onb__pimg{position:relative; width:72px; height:104px; border-radius:11px; overflow:hidden; background:#2a323d; border:2px solid transparent; transition:border-color .18s, transform .18s var(--spring)}
+.onb__pimg img{width:100%; height:100%; object-fit:cover; display:block}
+.onb__pcheck{position:absolute; inset:0; display:grid; place-items:center; background:color-mix(in srgb, var(--accent) 52%, rgba(0,0,0,.4)); color:#12161c; font-weight:800; font-size:22px; opacity:0; transition:opacity .18s}
+.onb__ptile.is-picked .onb__pimg{border-color:var(--accent); transform:translateY(-2px)}
+.onb__ptile.is-picked .onb__pcheck{opacity:1}
+.onb__ptt{font-size:10.5px; color:var(--ink-soft); line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:72px}
+.onb__chiprow{display:flex; flex-wrap:wrap; gap:7px; margin-top:2px}
+.onb__chip{display:inline-flex; align-items:center; gap:7px; padding:8px 13px; border-radius:999px; font-family:inherit; font-size:12.5px;
+  color:var(--ink-soft); background:rgba(255,255,255,.06); border:1px solid var(--line); cursor:pointer; transition:transform .18s var(--spring), background .2s, color .2s}
+.onb__chip:active{transform:scale(.95)}
+.onb__chipdot{width:9px; height:9px; border-radius:50%; flex:0 0 auto}
+.onb__chip.is-picked{color:#12161c; background:var(--accent); border-color:transparent; font-weight:600}
+.onb__chip.is-picked .onb__chipdot{background:#12161c !important}
 /* capa da categoria — Coleção */
 .ccover{height:clamp(110px,22vw,150px); border-radius:16px; background:#2a323d center/cover no-repeat; position:relative; margin-bottom:14px; overflow:hidden}
 .ccover::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 45%,rgba(10,12,16,.5))}
